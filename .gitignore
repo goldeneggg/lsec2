@@ -1,0 +1,7 @@
+.DS_Store
+*.swp
+*.log
+.test
+.profile
+Godeps/Readme
+Godeps/_workspace
