@@ -11,7 +11,7 @@ GODEP ?= godep
 all: depbuild
 
 depbuild: depsave
-	$(GODEP) $(GO) build -o $(GOBIN)/$(BINNAME) $(PGMPKGPATH)
+	$(GODEP) $(GO) build -ldflags="-w" -o $(GOBIN)/$(BINNAME) $(PGMPKGPATH)
 
 deptest: depvet
 	$(GODEP) $(GO) test -race -v $(TESTTARGET)
