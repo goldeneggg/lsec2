@@ -123,7 +123,7 @@ $ make
 
 
 ## ChangeLog
-[CHANGELOG](CHANGELOG) file for details.
+[CHANGELOG](CHANGELOG.md) file for details.
 
 
 ## License
