@@ -11,11 +11,14 @@ $ brew tap goldeneggg/lsec2
 $ brew install lsec2
 ```
 
-### go get
+### or `go get`
 
 ```bash
 $ go get -u github.com/goldeneggg/lsec2
 ```
+
+### or direct install binary
+Choice your platform's binary from [Downloads \| lsec2](https://drone.io/github.com/goldeneggg/lsec2/files)
 
 ### set environment variables
 
@@ -28,14 +31,12 @@ $ export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_ACCESS_KEY
 
 ## Usage
 
-Please type `lsec2`
-
 ```bash
 # show all instances info by list view
 $ lsec2 show
 ```
 
-You can get informations of instances as follows
+Result contains informations of instances as follows
 
 * instance id
 * private ip address
@@ -43,6 +44,8 @@ You can get informations of instances as follows
 * instance type
 * instance state
 * tags
+
+You can get detail information by typing `lsec2 -h` and `lsec2 help show`
 
 ### Filter by tag
 
@@ -97,9 +100,19 @@ $ source YOUR_DOTFILE
 $ lssh TagName1=tagvalue1
 ```
 
+### With gat
+[gat](https://github.com/goldeneggg/gat) is a file posting tool to various services like `cat` command.
+
+* Example: show instances => share your slack
+
+```bash
+# shortcut "lsec2 OPTIONS TAG_FILTERS" => copy this results to your slack channel
+$ lsec2 show TagName1=tagvalue1 | gat slack
+```
+
 ## Development
 
-Install Go, and setup using `go get`
+Install and setup Go, and setup lsec2 using `go get`
 
 ```bash
 $ go get -u github.com/goldeneggg/lsec2
@@ -119,7 +132,7 @@ $ make
 
 ## Contact
 
-* Bugs: [issues](https://github.com/goldeneggg/lsec2/issues)
+Bugs: [issues](https://github.com/goldeneggg/lsec2/issues)
 
 
 ## ChangeLog
