@@ -65,5 +65,9 @@ release-freebsd-amd64:
 	@./scripts/release.sh freebsd amd64
 
 publish: release
-	@echo "Publish releases to github"
+	@echo "Publishing releases to github"
 	@./scripts/publish.sh
+
+formula:
+	@echo "Generating formula"
+	@./scripts/publish.sh formula-only
