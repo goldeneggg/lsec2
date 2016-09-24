@@ -1,10 +1,18 @@
 package main
 
 import (
-	"github.com/goldeneggg/lsec2/awsec2"
+	"fmt"
+	"os"
+
 	"github.com/urfave/cli"
 )
 
+import (
+	"github.com/goldeneggg/lsec2/awsec2"
+	"github.com/goldeneggg/lsec2/constants"
+)
+
+/*
 var commands = []cli.Command{
 	cli.Command{
 		Name:   "show",
@@ -13,6 +21,7 @@ var commands = []cli.Command{
 		Action: action,
 	},
 }
+*/
 
 func run(args []string) error {
 	app := cli.NewApp()
@@ -21,26 +30,31 @@ func run(args []string) error {
 	app.Author = "goldeneggg"
 	app.Version = VERSION
 	app.Usage = "Listing information of aws ec2 instances"
-	app.Flags = globalFlags
-	app.Commands = commands
+	//app.Flags = globalFlags
+	app.Flags = append(globalFlags, showFlags...)
+	//app.Commands = commands
+	app.Action = action
 
 	return app.Run(args)
 }
 
 func action(c *cli.Context) {
-	opt := &awsec2.Opt{
+	client := &awsec2.Client{
 		Region: c.GlobalString("region"),
 		Tags:   c.Args(),
 	}
 
 	if c.IsSet("H") {
-		opt.PrintHeader = c.Bool("H")
+		client.PrintHeader = c.Bool("H")
 	}
 
 	if c.IsSet("p") {
-		opt.OnlyPrivateIP = c.Bool("p")
-		opt.PrintHeader = false
+		client.OnlyPrivateIP = c.Bool("p")
+		client.PrintHeader = false
 	}
 
-	sts = opt.Show()
+	if err := client.Print(); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		sts = constants.ExitStsNg
+	}
 }

@@ -1,29 +1,31 @@
 BINNAME := lsec2
-GO ?= go
-GOLINT ?= golint
-PGMPKGPATH := .
-TESTTARGET := ./...
-SAVETARGET := ./...
-LINTTARGET := ./...
+PGM_PATH := 'github.com/goldeneggg/lsec2'
+TEST_TARGET := ./...
+SAVE_TARGET := ./...
 
-GODEP ?= godep
+all: build
 
-all: depbuild
+build:
+	@echo "Building ${GOBIN}/$(BINNAME)"
+	@GO15VENDOREXPERIMENT=1 godep go build -o ${GOBIN}/$(BINNAME) $(PGM_PATH)
 
-depbuild: depsave
-	$(GODEP) $(GO) build -ldflags="-w" -o $(GOBIN)/$(BINNAME) $(PGMPKGPATH)
+test:
+	@echo "Testing"
+	@GO15VENDOREXPERIMENT=1 godep go test -race -v $(PGM_PATH)
+	@GO15VENDOREXPERIMENT=1 godep go test -race -v $(PGM_PATH)/awsec2...
 
-deptest: depvet
-	$(GODEP) $(GO) test -race -v $(TESTTARGET)
+vet:
+	@echo "Vetting"
+	@GO15VENDOREXPERIMENT=1 godep go tool vet --all -shadow ./*.go
+	@GO15VENDOREXPERIMENT=1 godep go tool vet -all -shadow ./awsec2
 
-depvet: depsave
-	$(GODEP) $(GO) vet -n $(TESTTARGET)
+dep-save:
+	@echo "Run godep save"
+	@GO15VENDOREXPERIMENT=1 godep save -v $(SAVE_TARGET)
 
-depsave:
-	$(GODEP) save $(SAVETARGET)
-
-depget:
-	$(GODEP) get
+dep-saved-build: dep-save build
 
 lint:
-	$(GOLINT) $(LINTTARGET)
+	@echo "Linting"
+	@GO15VENDOREXPERIMENT=1 ${GOBIN}/golint $(PGM_PATH)
+	@GO15VENDOREXPERIMENT=1 ${GOBIN}/golint $(PGM_PATH)/awsec2
