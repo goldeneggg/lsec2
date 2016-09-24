@@ -39,8 +39,13 @@ func run(args []string) error {
 }
 
 func action(c *cli.Context) {
+	if c.IsSet("show-build") {
+		showBuildInfo(c)
+		return
+	}
+
 	client := &awsec2.Client{
-		Region: c.GlobalString("region"),
+		Region: c.String("region"),
 		Tags:   c.Args(),
 	}
 
@@ -57,4 +62,9 @@ func action(c *cli.Context) {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		sts = constants.ExitStsNg
 	}
+}
+
+func showBuildInfo(c *cli.Context) {
+	fmt.Printf("build-date: %v\n", buildDate)
+	fmt.Printf("build-commit: %v\n", buildCommit)
 }

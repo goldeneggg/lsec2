@@ -3,7 +3,6 @@ lsec2
 
 <span style="display: inline-block;">
 [![Build Status](https://travis-ci.org/goldeneggg/lsec2.svg?branch=master)](https://travis-ci.org/goldeneggg/lsec2)
-[![Build Status](http://drone.io/github.com/goldeneggg/lsec2/status.png)](https://drone.io/github.com/goldeneggg/lsec2/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/goldeneggg/lsec2)](https://goreportcard.com/report/github.com/goldeneggg/lsec2)
 [![MIT License](http://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/goldeneggg/lsec2/blob/master/LICENSE)
 </span>
@@ -25,8 +24,11 @@ $ brew install lsec2
 $ go get -u github.com/goldeneggg/lsec2
 ```
 
-### Or direct install binary
-Choice your platform's binary from [Downloads \| lsec2](https://drone.io/github.com/goldeneggg/lsec2/files)
+### Or direct download
+
+Download from [current release](https://github.com)
+
+## Configuration
 
 ### Set environment variables
 
@@ -36,6 +38,21 @@ Choice your platform's binary from [Downloads \| lsec2](https://drone.io/github.
 $ export AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY_ID
 $ export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_ACCESS_KEY
 ```
+
+### Or create `~/.aws/credentials` file
+Write your credential information in `~/.aws/credentials` file
+
+* Write a `[default]` section
+* Write `aws_access_key_id` in `[default]` section
+* Write `aws_secret_access_key` in `[default]` section
+
+```ini
+[default]
+aws_access_key_id = YOUR_ACCESS_KEY_ID
+aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
+```
+
+More information: [session \- Amazon Web Services \- Go SDK](http://docs.aws.amazon.com/)
 
 ## Usage
 
@@ -53,7 +70,39 @@ Result contains informations of instances as follows
 * instance state
 * tags
 
-You can get detail information by typing `lsec2 -h`
+Show more detail information by typing `lsec2 -h`
+
+### Assign region
+
+You can use 3 patterns
+
+* assign by `--region` option (top priority)
+
+```sh
+$ lsec2 --region ap-northeast-1
+```
+
+* set `AWS_REGION` environment
+
+```sh
+$ export AWS_REGION=ap-northeast-1
+```
+
+* set `AWS_SDK_LOAD_CONFIG` environment, and write `region` key in `~/.aws/config` file
+
+```sh
+$ export AWS_SDK_LOAD_CONFIG=true
+```
+```ini
+# ~/.aws/config
+
+region = ap-northeast-1
+```
+
+Show more information from public AWS documents
+
+* [SDK Configuration — Developer Guide](https://docs.aws.amazon.com/sdk-for-go/v1/developerguide/configuring-sdk.html)
+* [Sessions — Developer Guide](https://docs.aws.amazon.com/sdk-for-go/v1/develo)
 
 ### Filter by tag
 
@@ -76,9 +125,6 @@ $ lsec2 -H
 
 # print only private IP address
 $ lsec2 -p
-
-# assign region using "--region" global option (default region is "ap-northeast-1")
-$ lsec2 --region YOUR_REGION
 ```
 
 ## Tips
@@ -139,5 +185,4 @@ Bugs: [issues](https://github.com/goldeneggg/lsec2/issues)
 
 ## TODO
 * [ ] Add tests
-* [ ] Add some sub commands
-    * `lsec2 ssh` - execute ssh
+* [ ] Add multi configuration type(ex: support `~/.aws/config`, `~/.aws/credentials`)

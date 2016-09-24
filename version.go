@@ -1,6 +1,4 @@
 package main
 
-const (
-	// VERSION info
-	VERSION = "0.0.1"
-)
+// VERSION info
+const VERSION = "0.0.3"
