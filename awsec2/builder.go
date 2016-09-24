@@ -62,7 +62,15 @@ func (opt *Opt) printInfos(infos []*instanceInfo) {
 }
 
 func (opt *Opt) buildInfos() ([]*instanceInfo, error) {
-	svc := ec2.New(session.New(), &aws.Config{Region: aws.String(opt.Region)})
+	//svc := ec2.New(session.New(), &aws.Config{Region: aws.String(opt.Region)})
+	sess, err := session.NewSession(&aws.Config{Region: aws.String(opt.Region)})
+	if err != nil {
+		return nil, fmt.Errorf("aws session.NewSession error: %v", err)
+	}
+	fmt.Printf("@@@ session.Config: %+v\n", sess.Config)
+	fmt.Printf("@@@ session.Handlers: %+v\n", sess.Handlers)
+
+	svc := ec2.New(sess)
 
 	output, err := svc.DescribeInstances(opt.filterParams())
 	if err != nil {

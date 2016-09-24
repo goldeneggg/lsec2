@@ -8,22 +8,24 @@ LINTTARGET := ./...
 
 GODEP ?= godep
 
-all: depbuild
+all: build
 
-depbuild: depsave
+build:
 	$(GODEP) $(GO) build -ldflags="-w" -o $(GOBIN)/$(BINNAME) $(PGMPKGPATH)
 
-deptest: depvet
+test: vet
 	$(GODEP) $(GO) test -race -v $(TESTTARGET)
 
-depvet: depsave
+vet:
 	$(GODEP) $(GO) vet -n $(TESTTARGET)
 
 depsave:
 	$(GODEP) save $(SAVETARGET)
 
-depget:
-	$(GODEP) get
+depbuild: depsave build
+
+deprestore:
+	$(GODEP) restore
 
 lint:
 	$(GOLINT) $(LINTTARGET)
