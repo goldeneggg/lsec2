@@ -30,18 +30,18 @@ class Lsec2 < Formula
 
   if Hardware::CPU.is_32_bit?
     if OS.linux?
-      url 'https://${PACKAGE_FULL}/releases/download/${TAG}/${PACKAGE}_${TAG}_linux_386.zip'
+      url 'https://${PACKAGE_FULL}/releases/download/${TAG}/${PACKAGE}_linux_386.zip'
       sha256 '$(${SHASUM} -a 256 ${RELEASES_DIR}/${PACKAGE}_linux_386/${PACKAGE}.shasum256 | awk '{print $1}')'
     else
-      url 'https://${PACKAGE_FULL}/releases/download/${TAG}/${PACKAGE}_${TAG}_darwin_386.zip'
+      url 'https://${PACKAGE_FULL}/releases/download/${TAG}/${PACKAGE}_darwin_386.zip'
       sha256 '$(${SHASUM} -a 256 ${RELEASES_DIR}/${PACKAGE}_darwin_386/${PACKAGE}.shasum256 | awk '{print $1}')'
     end
   else
     if OS.linux?
-      url 'https://${PACKAGE_FULL}/releases/download/${TAG}/${PACKAGE}_${TAG}_linux_amd64.zip'
+      url 'https://${PACKAGE_FULL}/releases/download/${TAG}/${PACKAGE}_linux_amd64.zip'
       sha256 '$(${SHASUM} -a 256 ${RELEASES_DIR}/${PACKAGE}_linux_amd64/${PACKAGE}.shasum256 | awk '{print $1}')'
     else
-      url 'https://${PACKAGE_FULL}/releases/download/${TAG}/${PACKAGE}_${TAG}_darwin_amd64.zip'
+      url 'https://${PACKAGE_FULL}/releases/download/${TAG}/${PACKAGE}_darwin_amd64.zip'
       sha256 '$(${SHASUM} -a 256 ${RELEASES_DIR}/${PACKAGE}_darwin_amd64/${PACKAGE}.shasum256 | awk '{print $1}')'
     end
   end
