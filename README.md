@@ -1,39 +1,47 @@
-lsec2 [![Build Status](http://drone.io/github.com/goldeneggg/lsec2/status.png)](https://drone.io/github.com/goldeneggg/lsec2/latest) [![Go Report Card](https://goreportcard.com/badge/github.com/goldeneggg/lsec2)](https://goreportcard.com/report/github.com/goldeneggg/lsec2) [![MIT License](http://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/goldeneggg/lsec2/blob/master/LICENSE)
+lsec2
 ==========
+
+<span style="display: inline-block;">
+[![Build Status](https://travis-ci.org/goldeneggg/lsec2.svg?branch=master)](https://travis-ci.org/goldeneggg/lsec2)
+[![Build Status](http://drone.io/github.com/goldeneggg/lsec2/status.png)](https://drone.io/github.com/goldeneggg/lsec2/latest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/goldeneggg/lsec2)](https://goreportcard.com/report/github.com/goldeneggg/lsec2)
+[![MIT License](http://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/goldeneggg/lsec2/blob/master/LICENSE)
+</span>
+
 List view of aws ec2 instances
 
-## Getting Started
+## Install
 
-### for Mac using homebrew
+### Using Homebrew for OS X
 
-```bash
+```sh
 $ brew tap goldeneggg/lsec2
 $ brew install lsec2
 ```
 
-### or `go get`
+### Or `go get`
 
-```bash
+```sh
 $ go get -u github.com/goldeneggg/lsec2
 ```
 
-### or direct install binary
+### Or direct install binary
 Choice your platform's binary from [Downloads \| lsec2](https://drone.io/github.com/goldeneggg/lsec2/files)
 
-### set environment variables
+### Set environment variables
 
 2 variables are required
 
-```bash
+```sh
 $ export AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY_ID
 $ export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_ACCESS_KEY
 ```
 
 ## Usage
 
-```bash
-# show all instances info by list view
-$ lsec2 show
+```sh
+# print all instances info by list view
+$ lsec2
 ```
 
 Result contains informations of instances as follows
@@ -45,32 +53,32 @@ Result contains informations of instances as follows
 * instance state
 * tags
 
-You can get detail information by typing `lsec2 -h` and `lsec2 help show`
+You can get detail information by typing `lsec2 -h`
 
 ### Filter by tag
 
-```bash
-# filterd by a tag
-$ lsec2 show TagName1=tagvalue1
+```sh
+# filterd by a tag key-value separated by "="
+$ lsec2 TagName1=tagvalue1
 
 # filterd by some tags
-$ lsec2 show TagName1=tagvalue1 TagNameN=tagvalueN
+$ lsec2 TagName1=tagvalue1 TagNameN=tagvalueN
 
-# filterd by a tag multiple values separated comma
-$ lsec2 show TagName1=tagvalue11,tagvalue12,tagvalue1N
+# filterd by a tag multiple values separated by comma
+$ lsec2 TagName1=tagvalue11,tagvalue12,tagvalue1N
 ```
 
 ### Options
 
-```bash
+```sh
 # with header
-$ lsec2 show -H
+$ lsec2 -H
 
-# show only private IP address
-$ lsec2 show -p
+# print only private IP address
+$ lsec2 -p
 
 # assign region using "--region" global option (default region is "ap-northeast-1")
-$ lsec2 --region YOUR_REGION show
+$ lsec2 --region YOUR_REGION
 ```
 
 ## Tips
@@ -78,14 +86,14 @@ $ lsec2 --region YOUR_REGION show
 ### With peco
 [peco](https://github.com/peco/peco) is a very useful interactive filtering tool.
 
-* Example: show instances => select instance => SSH to selected instance
+* Example: print instances => select instance => SSH to selected instance
 
-```bash
+```sh
 # add function to your .bashrc or .bash_profile or other shell dotfile
 $ vi YOUR_DOTFILE
 
 lssh () {
-  IP=$(lsec2 show $@ | peco | awk -F "\t" '{print $2}')
+  IP=$(lsec2 $@ | peco | awk -F "\t" '{print $2}')
   if [ $? -eq 0 -a "${IP}" != "" ]
   then
       eval "ssh ${IP}"
@@ -103,32 +111,15 @@ $ lssh TagName1=tagvalue1
 ### With gat
 [gat](https://github.com/goldeneggg/gat) is a file posting tool to various services like `cat` command.
 
-* Example: show instances => share your slack
+* Example: print instances => share your slack
 
-```bash
+```sh
 # shortcut "lsec2 OPTIONS TAG_FILTERS" => copy this results to your slack channel
-$ lsec2 show TagName1=tagvalue1 | gat slack
+$ lsec2 TagName1=tagvalue1 | gat slack
 ```
 
-## Development
-
-Install and setup Go, and setup lsec2 using `go get`
-
-```bash
-$ go get -u github.com/goldeneggg/lsec2
-```
-
-Initialize vendoring libraries
-
-```bash
-$ make depget
-```
-
-Build
-
-```bash
-$ make
-```
+## Contribute
+Please follow [Contributor's Guide](CONTRIBUTING.md)
 
 ## Contact
 

@@ -30,17 +30,18 @@ build:
     - script:
         name: go get
         code: |
-          go get
+          go get -u github.com/tools/godep
+          GO15VENDOREXPERIMENT=1 godep restore -v
 
     # Build the project
     - script:
         name: go build
         code: |
-          go build ./...
+          GO15VENDOREXPERIMENT=1 godep go build github.com/goldeneggg/lsec2
 
     # Test the project
     - script:
         name: go test
         code: |
-          go test ./...
-
+          GO15VENDOREXPERIMENT=1 godep go test -race -v github.com/goldeneggg/lsec2
+          GO15VENDOREXPERIMENT=1 godep go test -race -v github.com/goldeneggg/lsec2/awsec2...
