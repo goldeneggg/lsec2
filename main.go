@@ -11,6 +11,11 @@ import (
 
 var sts int
 
+var (
+	buildDate   string
+	buildCommit string
+)
+
 func main() {
 	defer finalize()
 

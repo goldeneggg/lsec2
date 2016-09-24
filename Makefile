@@ -2,6 +2,8 @@ BINNAME := lsec2
 PGM_PATH := 'github.com/goldeneggg/lsec2'
 TEST_TARGET := ./...
 SAVE_TARGET := ./...
+RELEASES_DIR := releases
+PKG_DIR := pkg
 
 all: build
 
@@ -29,3 +31,39 @@ lint:
 	@echo "Linting"
 	@GO15VENDOREXPERIMENT=1 ${GOBIN}/golint $(PGM_PATH)
 	@GO15VENDOREXPERIMENT=1 ${GOBIN}/golint $(PGM_PATH)/awsec2
+
+release:
+	@echo "Releasing"
+	@./scripts/release.sh
+
+release-darwin-amd64:
+	@echo "Releasing darwin-amd64"
+	@./scripts/release.sh darwin amd64
+
+release-linux-386:
+	@echo "Releasing linux-386"
+	@./scripts/release.sh linux 386
+
+release-linux-amd64:
+	@echo "Releasing linux-amd64"
+	@./scripts/release.sh linux amd64
+
+release-linux-arm:
+	@echo "Releasing linux-arm"
+	@./scripts/release.sh linux arm
+
+release-windows-386:
+	@echo "Releasing windows-386"
+	@./scripts/release.sh windows 386
+
+release-windows-amd64:
+	@echo "Releasing linux-amd64"
+	@./scripts/release.sh linux amd64
+
+release-freebsd-amd64:
+	@echo "Releasing freebsd-amd64"
+	@./scripts/release.sh freebsd amd64
+
+publish: release
+	@echo "Publish releases to github"
+	@./scripts/publish.sh

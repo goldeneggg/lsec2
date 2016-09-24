@@ -5,7 +5,6 @@ import "github.com/urfave/cli"
 var globalFlags = []cli.Flag{
 	cli.StringFlag{
 		Name:  "region",
-		Value: "ap-northeast-1",
 		Usage: "assign target region",
 	},
 }
@@ -18,5 +17,9 @@ var showFlags = []cli.Flag{
 	cli.BoolFlag{
 		Name:  "private-ip, p",
 		Usage: "print only private ip",
+	},
+	cli.BoolFlag{
+		Name:  "show-build",
+		Usage: "show build info",
 	},
 }

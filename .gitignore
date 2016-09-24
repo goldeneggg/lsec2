@@ -3,5 +3,9 @@
 *.log
 .test
 .profile
+
 Godeps/Readme
-Godeps/_workspace
+
+releases
+pkg
+*formula.rb
