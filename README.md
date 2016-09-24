@@ -26,7 +26,7 @@ $ go get -u github.com/goldeneggg/lsec2
 
 ### Or direct download
 
-Download from [current release](https://github.com)
+Download from [latest release](https://github.com/goldeneggg/lsec2/releases/latest)
 
 ## Configuration
 
