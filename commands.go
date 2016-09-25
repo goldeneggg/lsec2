@@ -7,10 +7,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-import (
-	"github.com/goldeneggg/lsec2/awsec2"
-	"github.com/goldeneggg/lsec2/constants"
-)
+import "github.com/goldeneggg/lsec2/awsec2"
 
 /*
 var commands = []cli.Command{
@@ -60,7 +57,7 @@ func action(c *cli.Context) {
 
 	if err := client.Print(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		sts = constants.ExitStsNg
+		sts = exitStsNg
 	}
 }
 

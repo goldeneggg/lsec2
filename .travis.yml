@@ -11,6 +11,6 @@ before_install:
   - GO15VENDOREXPERIMENT=1 godep restore -v
 
 script:
-- make test
+- make test-all
 
 sudo: false
