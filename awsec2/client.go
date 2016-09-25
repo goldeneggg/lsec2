@@ -31,20 +31,6 @@ func (client *Client) Print() error {
 	return nil
 }
 
-func (client *Client) printInfos(infos []*instanceInfo) {
-	if client.PrintHeader {
-		infos[0].printHeader()
-	}
-
-	for _, info := range infos {
-		if client.OnlyPrivateIP {
-			fmt.Printf("%s\n", info.privateIPAddress)
-		} else {
-			info.printRow()
-		}
-	}
-}
-
 func (client *Client) buildInfos() ([]*instanceInfo, error) {
 	sess, err := session.NewSession(&aws.Config{Region: aws.String(client.Region)})
 	if err != nil {
@@ -95,6 +81,20 @@ func (client *Client) filterParams() *ec2.DescribeInstancesInput {
 	}
 
 	return &ec2.DescribeInstancesInput{Filters: filters}
+}
+
+func (client *Client) printInfos(infos []*instanceInfo) {
+	if client.PrintHeader {
+		infos[0].printHeader()
+	}
+
+	for _, info := range infos {
+		if client.OnlyPrivateIP {
+			fmt.Printf("%s\n", info.privateIPAddress)
+		} else {
+			info.printRow()
+		}
+	}
 }
 
 func newInstanceInfo(instance *ec2.Instance) *instanceInfo {

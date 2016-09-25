@@ -52,7 +52,7 @@ aws_access_key_id = YOUR_ACCESS_KEY_ID
 aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
 ```
 
-More information: [session \- Amazon Web Services \- Go SDK](http://docs.aws.amazon.com/)
+More information: [session \- Amazon Web Services \- Go SDK](http://docs.aws.amazon.com/sdk-for-go/api/aws/session/)
 
 ## Usage
 
@@ -102,7 +102,7 @@ region = ap-northeast-1
 Show more information from public AWS documents
 
 * [SDK Configuration — Developer Guide](https://docs.aws.amazon.com/sdk-for-go/v1/developerguide/configuring-sdk.html)
-* [Sessions — Developer Guide](https://docs.aws.amazon.com/sdk-for-go/v1/develo)
+* [Sessions — Developer Guide](http://docs.aws.amazon.com/sdk-for-go/v1/developerguide/sessions.html)
 
 ### Filter by tag
 
@@ -142,7 +142,7 @@ lssh () {
   IP=$(lsec2 $@ | peco | awk -F "\t" '{print $2}')
   if [ $? -eq 0 -a "${IP}" != "" ]
   then
-      eval "ssh ${IP}"
+      ssh ${IP}
   fi
 }
 

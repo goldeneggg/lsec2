@@ -1,9 +1,6 @@
 BINNAME := lsec2
 PGM_PATH := 'github.com/goldeneggg/lsec2'
-TEST_TARGET := ./...
 SAVE_TARGET := ./...
-RELEASES_DIR := releases
-PKG_DIR := pkg
 
 all: build
 
