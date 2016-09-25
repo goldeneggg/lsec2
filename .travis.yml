@@ -11,7 +11,6 @@ before_install:
   - GO15VENDOREXPERIMENT=1 godep restore -v
 
 script:
-- GO15VENDOREXPERIMENT=1 godep go test -race -v github.com/goldeneggg/lsec2
-- GO15VENDOREXPERIMENT=1 godep go test -race -v github.com/goldeneggg/lsec2/awsec2
+- make test
 
 sudo: false
