@@ -33,6 +33,10 @@ release:
 	@echo "Releasing"
 	@./scripts/release.sh
 
+release-darwin-386:
+	@echo "Releasing darwin-386"
+	@./scripts/release.sh darwin 386
+
 release-darwin-amd64:
 	@echo "Releasing darwin-amd64"
 	@./scripts/release.sh darwin amd64
@@ -54,8 +58,8 @@ release-windows-386:
 	@./scripts/release.sh windows 386
 
 release-windows-amd64:
-	@echo "Releasing linux-amd64"
-	@./scripts/release.sh linux amd64
+	@echo "Releasing windows-amd64"
+	@./scripts/release.sh windows amd64
 
 release-freebsd-amd64:
 	@echo "Releasing freebsd-amd64"
