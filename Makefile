@@ -8,7 +8,7 @@ build:
 	@echo "Building ${GOBIN}/$(BINNAME)"
 	@GO15VENDOREXPERIMENT=1 godep go build -o ${GOBIN}/$(BINNAME) $(PGM_PATH)
 
-test:
+test-all:
 	@echo "Testing"
 	@GO15VENDOREXPERIMENT=1 godep go test -race -v $(PGM_PATH)
 	@GO15VENDOREXPERIMENT=1 godep go test -race -v $(PGM_PATH)/awsec2...

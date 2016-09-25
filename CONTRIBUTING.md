@@ -40,7 +40,7 @@ $ godep version
 
 ### Run tests
 
-* Run `make test`
+* Run `make test-all`
 
 ### Run vet
 

@@ -9,10 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-import (
-	"github.com/goldeneggg/lsec2/constants"
-)
-
 type Client struct {
 	PrintHeader   bool
 	OnlyPrivateIP bool
@@ -31,7 +27,7 @@ func (client *Client) Print() error {
 	return nil
 }
 
-func (client *Client) buildInfos() ([]*instanceInfo, error) {
+func (client *Client) buildInfos() ([]*InstanceInfo, error) {
 	sess, err := session.NewSession(&aws.Config{Region: aws.String(client.Region)})
 	if err != nil {
 		return nil, fmt.Errorf("aws new session error: %v", err)
@@ -44,11 +40,15 @@ func (client *Client) buildInfos() ([]*instanceInfo, error) {
 		return nil, fmt.Errorf("aws describe instances error: %v", err)
 	}
 
-	var infos []*instanceInfo
+	var infos []*InstanceInfo
 
 	for _, reservation := range output.Reservations {
 		for _, instance := range reservation.Instances {
-			infos = append(infos, newInstanceInfo(instance))
+			info, err := NewInstanceInfo(instance)
+			if err != nil {
+				return nil, err
+			}
+			infos = append(infos, info)
 		}
 	}
 
@@ -62,10 +62,10 @@ func (client *Client) filterParams() *ec2.DescribeInstancesInput {
 	// ex. "Name=Value"
 	// ex. "Name=Value1,Value2"
 	for _, tag := range client.Tags {
-		tagNameValue := strings.Split(tag, constants.TagPairSeparator)
-		name := aws.String(constants.TagFilterPrefix + tagNameValue[0])
+		tagNameValue := strings.Split(tag, TagPairSeparator)
+		name := aws.String(TagFilterPrefix + tagNameValue[0])
 		values := make([]*string, 0, 3)
-		for _, value := range strings.Split(tagNameValue[1], constants.TagValueSeparator) {
+		for _, value := range strings.Split(tagNameValue[1], TagValueSeparator) {
 			values = append(values, aws.String(value))
 		}
 
@@ -83,45 +83,16 @@ func (client *Client) filterParams() *ec2.DescribeInstancesInput {
 	return &ec2.DescribeInstancesInput{Filters: filters}
 }
 
-func (client *Client) printInfos(infos []*instanceInfo) {
+func (client *Client) printInfos(infos []*InstanceInfo) {
 	if client.PrintHeader {
 		infos[0].printHeader()
 	}
 
 	for _, info := range infos {
 		if client.OnlyPrivateIP {
-			fmt.Printf("%s\n", info.privateIPAddress)
+			fmt.Printf("%s\n", info.PrivateIPAddress)
 		} else {
 			info.printRow()
 		}
 	}
-}
-
-func newInstanceInfo(instance *ec2.Instance) *instanceInfo {
-	i := &instanceInfo{
-		privateIPAddress: fetchItem(instance.PrivateIpAddress),
-		instanceID:       fetchItem(instance.InstanceId),
-		instanceType:     fetchItem(instance.InstanceType),
-		stateName:        fetchItem(instance.State.Name),
-		publicIPAddress:  fetchItem(instance.PublicIpAddress),
-	}
-
-	tags := make(map[string]string)
-	for _, tag := range instance.Tags {
-		tags[*tag.Key] = *tag.Value
-	}
-
-	if len(tags) > 0 {
-		i.tags = tags
-	}
-
-	return i
-}
-
-func fetchItem(instanceItem *string) string {
-	if len(aws.StringValue(instanceItem)) == 0 {
-		return constants.UndefinedItem
-	}
-
-	return *instanceItem
 }

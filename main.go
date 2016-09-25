@@ -5,8 +5,9 @@ import (
 	"os"
 )
 
-import (
-	"github.com/goldeneggg/lsec2/constants"
+const (
+	exitStsOk = iota
+	exitStsNg
 )
 
 var sts int
@@ -21,14 +22,14 @@ func main() {
 
 	if err := run(os.Args); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		sts = constants.ExitStsNg
+		sts = exitStsNg
 	}
 }
 
 func finalize() {
 	if err := recover(); err != nil {
 		fmt.Fprintf(os.Stderr, "Panic: %v\n", err)
-		sts = constants.ExitStsNg
+		sts = exitStsNg
 	}
 
 	os.Exit(sts)
