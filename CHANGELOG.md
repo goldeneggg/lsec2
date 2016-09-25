@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.1.0](https://github.com/goldeneggg/lsec2/tree/v0.1.0) (2016-09-25)
+[Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.0.3...v0.1.0)
+
+**Merged pull requests:**
+
+- refactoring and add tests [\#3](https://github.com/goldeneggg/lsec2/pull/3) ([goldeneggg](https://github.com/goldeneggg))
+
 ## [v0.0.3](https://github.com/goldeneggg/lsec2/tree/v0.0.3) (2016-09-24)
 [Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.0.2...v0.0.3)
 
