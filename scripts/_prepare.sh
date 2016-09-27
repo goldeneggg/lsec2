@@ -1,6 +1,7 @@
 #!/bin/sh
 PACKAGE=lsec2
 PACKAGE_FULL=github.com/goldeneggg/${PACKAGE}
+FORMULA_CLASS=Lsec2
 
 GREP=$(which grep)
 SED=$(which sed)

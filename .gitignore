@@ -9,3 +9,5 @@ Godeps/Readme
 releases
 pkg
 *formula.rb
+
+*.test

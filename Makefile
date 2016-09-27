@@ -1,6 +1,8 @@
 BINNAME := lsec2
 PGM_PATH := 'github.com/goldeneggg/lsec2'
 SAVE_TARGET := ./...
+PROFDIR := ./.profile
+PROFTARGET := ./awsec2
 
 all: build
 
@@ -12,6 +14,9 @@ test-all:
 	@echo "Testing"
 	@GO15VENDOREXPERIMENT=1 godep go test -race -v $(PGM_PATH)
 	@GO15VENDOREXPERIMENT=1 godep go test -race -v $(PGM_PATH)/awsec2...
+
+prof:
+	@[ ! -d $(PROFDIR) ] && mkdir $(PROFDIR); GO15VENDOREXPERIMENT=1 godep go test -bench . -benchmem -blockprofile $(PROFDIR)/block.out -cover -coverprofile $(PROFDIR)/cover.out -cpuprofile $(PROFDIR)/cpu.out -memprofile $(PROFDIR)/mem.out $(PROFTARGET)
 
 vet:
 	@echo "Vetting"

@@ -31,7 +31,7 @@ formula(){
   cat << EOF > ${PACKAGE}_formula.rb
 require "formula"
 
-class Lsec2 < Formula
+class ${FORMULA_CLASS} < Formula
   homepage 'https://${PACKAGE_FULL}'
   version '${VERSION}'
 
