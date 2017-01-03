@@ -8,8 +8,10 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/fatih/color"
 )
 
+// InstanceInfo is attributes of aws ec2 instance
 type InstanceInfo struct {
 	InstanceID       string            `header:"INSTANCE_ID"`
 	PrivateIPAddress string            `header:"PRIVATE_IP"`
@@ -19,6 +21,7 @@ type InstanceInfo struct {
 	Tags             map[string]string `header:"TAGS"`
 }
 
+// NewInstanceInfo creates a new InstanceInfo
 func NewInstanceInfo(instance *ec2.Instance) (*InstanceInfo, error) {
 	if instance == nil {
 		return nil, fmt.Errorf("ec2.Instance: %v is invalid", instance)
@@ -44,18 +47,19 @@ func NewInstanceInfo(instance *ec2.Instance) (*InstanceInfo, error) {
 	return i, nil
 }
 
-func (info *InstanceInfo) ParseRow() string {
+// ParseRow parses from InstanceInfo to one line string
+func (info *InstanceInfo) ParseRow(withColor bool) string {
 	var values []string
 
 	values = append(values, info.InstanceID)
 	values = append(values, info.PrivateIPAddress)
 	values = append(values, info.PublicIPAddress)
 	values = append(values, info.InstanceType)
-	values = append(values, info.StateName)
+	values = append(values, info.decorateStateName(withColor))
 
-	values = append(values, strings.Join(info.parseTags(), ParsedTagSeparator))
+	values = append(values, strings.Join(info.parseTags(), parsedTagSeparator))
 
-	return fmt.Sprintf("%s", strings.Join(values, FieldSeparater))
+	return fmt.Sprintf("%s", strings.Join(values, fieldSeparater))
 }
 
 func (info *InstanceInfo) printHeader() {
@@ -67,11 +71,29 @@ func (info *InstanceInfo) printHeader() {
 		headers = append(headers, field.Tag.Get("header"))
 	}
 
-	fmt.Printf("%s\n", strings.Join(headers, FieldSeparater))
+	fmt.Printf("%s\n", strings.Join(headers, fieldSeparater))
 }
 
-func (info *InstanceInfo) printRow() {
-	fmt.Printf("%s\n", info.ParseRow())
+func (info *InstanceInfo) printRow(withColor bool) {
+	fmt.Printf("%s\n", info.ParseRow(withColor))
+}
+
+func (info *InstanceInfo) decorateStateName(withColor bool) string {
+	if !withColor {
+		return info.StateName
+	}
+
+	var colorAttr color.Attribute
+	switch info.StateName {
+	case "running":
+		colorAttr = color.FgGreen
+	case "stopped":
+		colorAttr = color.FgRed
+	default:
+		colorAttr = color.FgYellow
+	}
+
+	return color.New(colorAttr).SprintFunc()(info.StateName)
 }
 
 func (info *InstanceInfo) parseTags() []string {
@@ -91,7 +113,7 @@ func (info *InstanceInfo) parseTags() []string {
 
 func fetchItem(instanceItem *string) string {
 	if len(aws.StringValue(instanceItem)) == 0 {
-		return UndefinedItem
+		return undefinedItem
 	}
 
 	return *instanceItem

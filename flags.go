@@ -22,4 +22,8 @@ var showFlags = []cli.Flag{
 		Name:  "show-build",
 		Usage: "show build info",
 	},
+	cli.BoolFlag{
+		Name:  "with-color, c",
+		Usage: "print state with color",
+	},
 }

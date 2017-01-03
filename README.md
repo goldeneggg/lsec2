@@ -125,6 +125,10 @@ $ lsec2 -H
 
 # print only private IP address
 $ lsec2 -p
+
+# print state with color
+# ("running" is green, "stopped" is red, and others are yellow)
+$ lsec2 -c
 ```
 
 ## Tips
@@ -182,7 +186,3 @@ Bugs: [issues](https://github.com/goldeneggg/lsec2/issues)
 
 ## Special Thanks
 [@sugitak](https://github.com/sugitak)
-
-## TODO
-* [ ] Add tests
-* [ ] Add multi configuration type(ex: support `~/.aws/config`, `~/.aws/credentials`)

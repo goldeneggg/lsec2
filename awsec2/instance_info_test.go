@@ -99,7 +99,7 @@ var infoTests = []infoTest{
 		expected: &InstanceInfo{
 			InstanceID:       dummyInstanceID,
 			PrivateIPAddress: dummyPrivateIPAddress,
-			PublicIPAddress:  UndefinedItem,
+			PublicIPAddress:  "UNDEFINED",
 			InstanceType:     dummyInstanceType,
 			StateName:        dummyStateName,
 			Tags: map[string]string{
@@ -109,7 +109,7 @@ var infoTests = []infoTest{
 		expectedParsed: fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s=%s",
 			dummyInstanceID,
 			dummyPrivateIPAddress,
-			UndefinedItem,
+			"UNDEFINED",
 			dummyInstanceType,
 			dummyStateName,
 			dummyTagKeys[0],
@@ -151,7 +151,7 @@ func TestNewInstanceInfo(t *testing.T) {
 	for _, it := range infoTests {
 		out, err := NewInstanceInfo(it.in)
 		if err != nil {
-			t.Errorf("occured error: %v, in: %#v", err, it.in)
+			t.Errorf("occurred error: %v, in: %#v", err, it.in)
 		}
 		if !compare(out, it.expected) {
 			t.Errorf("expected: %#v, but out: %#v", it.expected, out)
@@ -193,13 +193,13 @@ func compare(out *InstanceInfo, expected *InstanceInfo) bool {
 func TestNewInstanceInfoByNil(t *testing.T) {
 	out, err := NewInstanceInfo(nil)
 	if err == nil {
-		t.Errorf("not occured expected error. out: %#v", out)
+		t.Errorf("not occurred expected error. out: %#v", out)
 	}
 }
 
 func TestParseRow(t *testing.T) {
 	for _, it := range infoTests {
-		out := it.expected.ParseRow()
+		out := it.expected.ParseRow(false)
 		if out != it.expectedParsed {
 			t.Errorf("expected: [%s], but out: [%s]", it.expectedParsed, out)
 		}
