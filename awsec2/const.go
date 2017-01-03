@@ -1,12 +1,12 @@
 package awsec2
 
 const (
-	TagFilterPrefix   = "tag:"
-	TagPairSeparator  = "="
-	TagValueSeparator = ","
+	tagFilterPrefix   = "tag:"
+	tagPairSeparator  = "="
+	tagValueSeparator = ","
 
-	ParsedTagSeparator = ","
-	FieldSeparater     = "\t"
+	parsedTagSeparator = ","
+	fieldSeparater     = "\t"
 
-	UndefinedItem = "UNDEFINED"
+	undefinedItem = "UNDEFINED"
 )

@@ -9,17 +9,6 @@ import (
 
 import "github.com/goldeneggg/lsec2/awsec2"
 
-/*
-var commands = []cli.Command{
-	cli.Command{
-		Name:   "show",
-		Usage:  "show instance list",
-		Flags:  showFlags,
-		Action: action,
-	},
-}
-*/
-
 func run(args []string) error {
 	app := cli.NewApp()
 
@@ -53,6 +42,10 @@ func action(c *cli.Context) {
 	if c.IsSet("p") {
 		client.OnlyPrivateIP = c.Bool("p")
 		client.PrintHeader = false
+	}
+
+	if c.IsSet("c") {
+		client.WithColor = c.Bool("c")
 	}
 
 	if err := client.Print(); err != nil {

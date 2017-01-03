@@ -9,13 +9,18 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
+// Client is options definition of print
+// client attributes
 type Client struct {
 	PrintHeader   bool
 	OnlyPrivateIP bool
 	Region        string
 	Tags          []string
+	WithColor     bool
 }
 
+// Print is print method for aws ec2 instances
+// print information of aws ec2 instances
 func (client *Client) Print() error {
 	infos, err := client.buildInfos()
 	if err != nil {
@@ -62,10 +67,10 @@ func (client *Client) filterParams() *ec2.DescribeInstancesInput {
 	// ex. "Name=Value"
 	// ex. "Name=Value1,Value2"
 	for _, tag := range client.Tags {
-		tagNameValue := strings.Split(tag, TagPairSeparator)
-		name := aws.String(TagFilterPrefix + tagNameValue[0])
+		tagNameValue := strings.Split(tag, tagPairSeparator)
+		name := aws.String(tagFilterPrefix + tagNameValue[0])
 		values := make([]*string, 0, 3)
-		for _, value := range strings.Split(tagNameValue[1], TagValueSeparator) {
+		for _, value := range strings.Split(tagNameValue[1], tagValueSeparator) {
 			values = append(values, aws.String(value))
 		}
 
@@ -92,7 +97,7 @@ func (client *Client) printInfos(infos []*InstanceInfo) {
 		if client.OnlyPrivateIP {
 			fmt.Printf("%s\n", info.PrivateIPAddress)
 		} else {
-			info.printRow()
+			info.printRow(client.WithColor)
 		}
 	}
 }
