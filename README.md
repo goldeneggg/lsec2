@@ -92,10 +92,11 @@ $ export AWS_REGION=ap-northeast-1
 
 ```sh
 $ export AWS_SDK_LOAD_CONFIG=true
+
+$ vi ~/.aws/config
 ```
 ```ini
-# ~/.aws/config
-
+[default]
 region = ap-northeast-1
 ```
 

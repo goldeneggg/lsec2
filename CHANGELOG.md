@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.1.1](https://github.com/goldeneggg/lsec2/tree/v0.1.1) (2017-01-03)
+[Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.1.0...v0.1.1)
+
+**Merged pull requests:**
+
+- support printing state with color, and some refactoring [\#4](https://github.com/goldeneggg/lsec2/pull/4) ([goldeneggg](https://github.com/goldeneggg))
+
 ## [v0.1.0](https://github.com/goldeneggg/lsec2/tree/v0.1.0) (2016-09-25)
 [Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.0.3...v0.1.0)
 

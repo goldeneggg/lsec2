@@ -8,7 +8,7 @@
 ### Install Go
 Please setup Golang environment, follow [Getting Started \- The Go Programming Language](https://golang.org/doc/instal)
 
-___(required version 1.5 or later)___, and recommend version 1.7 or later)
+___(required version 1.5 or later)___, and recommend version 1.7 or later
 
 ### Fork
 * Fork [lsec2](https://github.com/goldeneggg/lsec2/fork)
