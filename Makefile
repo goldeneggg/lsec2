@@ -27,6 +27,10 @@ dep-save:
 	@echo "Run godep save"
 	@GO15VENDOREXPERIMENT=1 godep save -v $(SAVE_TARGET)
 
+dep-update:
+	@echo "Run godep update"
+	@GO15VENDOREXPERIMENT=1 godep update -v $(SAVE_TARGET)
+
 dep-saved-build: dep-save build
 
 lint:
