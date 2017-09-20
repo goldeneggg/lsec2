@@ -26,4 +26,8 @@ var showFlags = []cli.Flag{
 		Name:  "with-color, c",
 		Usage: "print state with color",
 	},
+	cli.StringFlag{
+		Name:  "state, s",
+		Usage: "filter only assigned state",
+	},
 }
