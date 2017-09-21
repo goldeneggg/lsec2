@@ -42,13 +42,13 @@ $ godep version
 
 * Run `make test-all`
 
-### Run vet
-
-* Run `make vet`
-
 ### Build and install
 
 * Run `make`
+
+### Run vet
+
+* Run `make vet`
 
 ### Run golint
 
