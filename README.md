@@ -117,6 +117,11 @@ $ lsec2 TagName1=tagvalue11,tagvalue12,tagvalue1N
 # with header
 $ lsec2 -H
 
+# filter state
+$ lsec2 -s running
+$ lsec2 -s stopped
+$ lsec2 -s OTHER_STATE
+
 # print only private IP address
 $ lsec2 -p
 

@@ -5,6 +5,7 @@
 .profile
 
 Godeps/Readme
+vendor
 
 releases
 pkg

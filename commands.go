@@ -48,6 +48,10 @@ func action(c *cli.Context) {
 		client.WithColor = c.Bool("c")
 	}
 
+	if c.IsSet("s") {
+		client.StateName = c.String("s")
+	}
+
 	if err := client.Print(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		sts = exitStsNg

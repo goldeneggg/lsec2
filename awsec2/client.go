@@ -17,6 +17,7 @@ type Client struct {
 	Region        string
 	Tags          []string
 	WithColor     bool
+	StateName     string
 }
 
 // Print is print method for aws ec2 instances
@@ -94,10 +95,12 @@ func (client *Client) printInfos(infos []*InstanceInfo) {
 	}
 
 	for _, info := range infos {
-		if client.OnlyPrivateIP {
-			fmt.Printf("%s\n", info.PrivateIPAddress)
-		} else {
-			info.printRow(client.WithColor)
+		if len(client.StateName) == 0 || client.StateName == info.StateName {
+			if client.OnlyPrivateIP {
+				fmt.Printf("%s\n", info.PrivateIPAddress)
+			} else {
+				info.printRow(client.WithColor)
+			}
 		}
 	}
 }
