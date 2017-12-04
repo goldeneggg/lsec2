@@ -1,5 +1,13 @@
 # Change Log
 
+## [v0.2.0](https://github.com/goldeneggg/lsec2/tree/v0.2.0) (2017-09-21)
+[Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.1.1...v0.2.0)
+
+**Merged pull requests:**
+
+- add state filter [\#6](https://github.com/goldeneggg/lsec2/pull/6) ([goldeneggg](https://github.com/goldeneggg))
+- fix README [\#5](https://github.com/goldeneggg/lsec2/pull/5) ([goldeneggg](https://github.com/goldeneggg))
+
 ## [v0.1.1](https://github.com/goldeneggg/lsec2/tree/v0.1.1) (2017-01-03)
 [Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.1.0...v0.1.1)
 

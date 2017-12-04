@@ -13,6 +13,7 @@ const (
 var sts int
 
 var (
+	version     string
 	buildDate   string
 	buildCommit string
 )

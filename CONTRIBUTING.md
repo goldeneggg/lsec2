@@ -8,7 +8,7 @@
 ### Install Go
 Please setup Golang environment, follow [Getting Started \- The Go Programming Language](https://golang.org/doc/instal)
 
-__(required version 1.5 or later)__ , and recommend version 1.7 or later
+__(required version 1.6 or later)__ , and recommend version 1.9 or later
 
 ### Fork
 * Fork [lsec2](https://github.com/goldeneggg/lsec2/fork)
@@ -22,34 +22,29 @@ $ cd lsec2
 $ git remote add upstream https://github.com/goldeneggg/lsec2
 ```
 
-### Install godep
-* Install [tools/godep: dependency tool for go](https://github.com/tools/godep)
+### Install dep
+* [Setup golang/dep: Go dependency management tool](https://github.com/golang/dep#setup)
 
 ```sh
-$ go get -u github.com/tools/godep
-
-# (required version v7x or later, please check `godep version`)
-$ godep version
+$ go get -u github.com/golang/dep/cmd/dep
 ```
 
-### Add or remove dependencies
+### Add dependencies on local
 
-* Run `go get hoge/huga`
-* Edit your code to [not] `import hoge/huga`
-* Run `make dep-save`
+* Run `make dep`
 
 ### Run tests
 
-* Run `make test-all`
+* Run `make test`
 
-### Build and install
+### Build
 
 * Run `make`
 
-### Run vet
+### install
 
-* Run `make vet`
+* Run `make install`
 
-### Run golint
+### Validate codes
 
-* Run `make lint`
+* Run `make validate`

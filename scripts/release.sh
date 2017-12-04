@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -eu
 
@@ -39,11 +39,10 @@ build(){
 
   CUR_DATE=$(date "+%Y-%m-%d %H:%M:%S")
   COMMIT=$(git log --format=%H -n1)
-  LD_FLAGS="-X \"main.buildDate=${CUR_DATE}\""
-  LD_FLAGS="${LD_FLAGS} -X \"main.buildCommit=${COMMIT}\""
+  LD_FLAGS=$(${BASE_DIR}/scripts/_ldflags.sh)
   echo "LD_FLAGS: ${LD_FLAGS}"
 
-  GO15VENDOREXPERIMENT=1 GOOS=${os} GOARCH=${arch} godep go build -ldflags "${LD_FLAGS}" -o ${release_dir}/${RELEASE_BIN}
+  GOOS=${os} GOARCH=${arch} go build -ldflags "${LD_FLAGS}" -o ${release_dir}/${RELEASE_BIN}
 
   local release_shasum256=${RELEASE_BIN}.shasum256
   ${SHASUM} -a 256 ${release_dir}/${RELEASE_BIN} | ${AWK} '{print $1}' > ${release_dir}/${release_shasum256}

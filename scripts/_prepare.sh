@@ -1,19 +1,18 @@
-#!/bin/sh
+#!/bin/bash
+MYDIR=$(cd $(dirname $0) && pwd)
+BASE_DIR=${MYDIR}/..
+RELEASES_DIR=${BASE_DIR}/releases
+PKG_DIR=${BASE_DIR}/pkg
+
 PACKAGE=lsec2
 PACKAGE_FULL=github.com/goldeneggg/${PACKAGE}
 FORMULA_CLASS=Lsec2
 
-GREP=$(which grep)
-SED=$(which sed)
 AWK=$(which awk)
 SHASUM=$(which shasum)
 
-RELEASES_DIR=$(pwd)/releases
-PKG_DIR=$(pwd)/pkg
-
-VERSION=$(${GREP} "const VERSION" version.go | ${SED} -e 's/const VERSION = //g' | ${SED} -e 's/\"//g')
-TAG="v${VERSION}"
+TAG=v$(${BASE_DIR}/scripts/_version.sh)
 echo "release tag: ${TAG}"
 
-DEFAULT_OS=('linux' 'darwin' 'windows')
+DEFAULT_OS=('linux' 'darwin' 'windows' 'freebsd')
 DEFAULT_ARCH=('amd64' '386')

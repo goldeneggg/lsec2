@@ -1,43 +1,52 @@
-BINNAME := lsec2
-PGM_PATH := 'github.com/goldeneggg/lsec2'
+NAME := lsec2
+VERSION := $(shell ./scripts/_version.sh)
+LD_FLAGS := $(shell ./scripts/_ldflags.sh)
+SRCS := $(shell find . -type f -name '*.go')
+BASE_PACKAGE := 'github.com/goldeneggg/lsec2'
 SAVE_TARGET := ./...
-PROFDIR := ./.profile
-PROFTARGET := ./awsec2
+PROF_DIR := ./.profile
+PROF_TARGET := ./awsec2
 
-all: build
+.DEFAULT_GOAL := bin/$(NAME)
 
-build:
-	@echo "Building ${GOBIN}/$(BINNAME)"
-	@GO15VENDOREXPERIMENT=1 godep go build -o ${GOBIN}/$(BINNAME) $(PGM_PATH)
+version:
+	@echo $(VERSION)
 
-test-all:
-	@echo "Testing"
-	@GO15VENDOREXPERIMENT=1 godep go test -race -v $(PGM_PATH)
-	@GO15VENDOREXPERIMENT=1 godep go test -race -v $(PGM_PATH)/awsec2...
+ldflags:
+	@echo $(LD_FLAGS)
+
+dep:
+	@dep ensure -v
+
+dep-status:
+	@dep status -v
+
+bin/$(NAME): $(SRCS)
+	@go build -v -a -tags netgo -installsuffix netgo -ldflags='$(LD_FLAGS)' -o bin/$(NAME)
+
+install:
+	@go install -v -ldflags='$(LD_FLAGS)'
+
+test:
+	@go test -race -cover -v $(BASE_PACKAGE)
+	@go test -race -cover -v $(BASE_PACKAGE)/awsec2...
+
+ci-test:
+	@./scripts/ci-test.sh
 
 prof:
-	@[ ! -d $(PROFDIR) ] && mkdir $(PROFDIR); GO15VENDOREXPERIMENT=1 godep go test -bench . -benchmem -blockprofile $(PROFDIR)/block.out -cover -coverprofile $(PROFDIR)/cover.out -cpuprofile $(PROFDIR)/cpu.out -memprofile $(PROFDIR)/mem.out $(PROFTARGET)
+	@[ ! -d $(PROF_DIR) ] && mkdir $(PROF_DIR); go test -bench . -benchmem -blockprofile $(PROF_DIR)/block.out -cover -coverprofile $(PROF_DIR)/cover.out -cpuprofile $(PROF_DIR)/cpu.out -memprofile $(PROF_DIR)/mem.out $(PROF_TARGET)
 
 vet:
-	@echo "Vetting"
-	@GO15VENDOREXPERIMENT=1 godep go tool vet --all -shadow ./*.go
-	@GO15VENDOREXPERIMENT=1 godep go tool vet -all -shadow ./awsec2
-
-dep-save:
-	@echo "Run godep save"
-	@GO15VENDOREXPERIMENT=1 godep save -v $(SAVE_TARGET)
-
-dep-update:
-	@echo "Run godep update"
-	@GO15VENDOREXPERIMENT=1 godep update -v $(SAVE_TARGET)
-
-dep-saved-build: dep-save build
+	@go tool vet -v --all -shadow ./*.go
+	@go tool vet -v -all -shadow ./awsec2
 
 lint:
-	@echo "Linting"
-	@GO15VENDOREXPERIMENT=1 ${GOBIN}/golint $(PGM_PATH)
-	@GO15VENDOREXPERIMENT=1 ${GOBIN}/golint $(PGM_PATH)/awsec2
+	@${GOBIN}/golint -set_exit_status $(BASE_PACKAGE)
+	@${GOBIN}/golint -set_exit_status $(BASE_PACKAGE)/awsec2
 
+validate: vet lint
+  
 release:
 	@echo "Releasing"
 	@./scripts/release.sh
@@ -69,6 +78,10 @@ release-windows-386:
 release-windows-amd64:
 	@echo "Releasing windows-amd64"
 	@./scripts/release.sh windows amd64
+
+release-freebsd-386:
+	@echo "Releasing freebsd-386"
+	@./scripts/release.sh freebsd 386
 
 release-freebsd-amd64:
 	@echo "Releasing freebsd-amd64"

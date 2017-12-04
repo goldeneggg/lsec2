@@ -3,12 +3,12 @@
 *.log
 .test
 .profile
-
-Godeps/Readme
 vendor
 
+bin
 releases
 pkg
 *formula.rb
+coverage.txt
 
 *.test
