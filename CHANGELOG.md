@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.2.1](https://github.com/goldeneggg/lsec2/tree/v0.2.1) (2017-12-05)
+[Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.2.0...v0.2.1)
+
+**Merged pull requests:**
+
+- refactoring vendoring and devops [\#7](https://github.com/goldeneggg/lsec2/pull/7) ([goldeneggg](https://github.com/goldeneggg))
+
 ## [v0.2.0](https://github.com/goldeneggg/lsec2/tree/v0.2.0) (2017-09-21)
 [Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.1.1...v0.2.0)
 

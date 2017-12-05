@@ -2,7 +2,7 @@
 
 set -eu
 
-publish(){
+upload(){
   [ -d ${PKG_DIR} ] && rm -r ${PKG_DIR}
   mkdir -p ${PKG_DIR}
 
@@ -17,6 +17,8 @@ publish(){
     done
   done
   popd
+
+  # Note: need to set "GITHUB_TOKEN" environment
   ghr --draft --replace ${TAG} ${PKG_DIR}
 }
 
@@ -61,11 +63,12 @@ EOF
 }
 
 source scripts/_prepare.sh
+VERSION=$(${BASE_DIR}/scripts/_version.sh)
 
 if [ $# -eq 1 ]
 then
   [ ${1} = "formula-only" ] && formula
 else
-  publish && formula
+  upload && formula
 fi
 

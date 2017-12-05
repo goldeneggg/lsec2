@@ -87,10 +87,12 @@ release-freebsd-amd64:
 	@echo "Releasing freebsd-amd64"
 	@./scripts/release.sh freebsd amd64
 
-publish: release
-	@echo "Publishing releases to github"
-	@./scripts/publish.sh
+upload:
+	@echo "Uploading releases to github"
+	@./scripts/upload.sh
 
 formula:
 	@echo "Generating formula"
-	@./scripts/publish.sh formula-only
+	@./scripts/upload.sh formula-only
+
+publish: release upload
