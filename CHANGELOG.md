@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.2.2](https://github.com/goldeneggg/lsec2/tree/v0.2.2) (2017-12-10)
+[Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.2.1...v0.2.2)
+
+**Merged pull requests:**
+
+- some fixes of depops [\#8](https://github.com/goldeneggg/lsec2/pull/8) ([goldeneggg](https://github.com/goldeneggg))
+
 ## [v0.2.1](https://github.com/goldeneggg/lsec2/tree/v0.2.1) (2017-12-05)
 [Full Changelog](https://github.com/goldeneggg/lsec2/compare/v0.2.0...v0.2.1)
 
