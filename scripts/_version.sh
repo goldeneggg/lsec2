@@ -1,4 +1,6 @@
 #!/bin/bash
+set -eu
+
 MYDIR=$(cd $(dirname $0) && pwd)
 BASE_DIR=${MYDIR}/..
 

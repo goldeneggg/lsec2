@@ -11,8 +11,8 @@ FORMULA_CLASS=Lsec2
 AWK=$(which awk)
 SHASUM=$(which shasum)
 
-TAG=v$(${BASE_DIR}/scripts/_version.sh)
-echo "release tag: ${TAG}"
+VERSION=$(${BASE_DIR}/scripts/_version.sh)
+TAG=v${VERSION}
 
 DEFAULT_OS=('linux' 'darwin' 'windows' 'freebsd')
 DEFAULT_ARCH=('amd64' '386')

@@ -35,18 +35,11 @@ build(){
   RELEASE_BIN="${PACKAGE}"
   [ ${os} = "windows" ] && RELEASE_BIN=${RELEASE_BIN}.exe
 
-  echo ">>>>>> building: ${release_dir}/${RELEASE_BIN}"
-
-  CUR_DATE=$(date "+%Y-%m-%d %H:%M:%S")
-  COMMIT=$(git log --format=%H -n1)
-  LD_FLAGS=$(${BASE_DIR}/scripts/_ldflags.sh)
-  echo "LD_FLAGS: ${LD_FLAGS}"
-
-  GOOS=${os} GOARCH=${arch} go build -ldflags "${LD_FLAGS}" -o ${release_dir}/${RELEASE_BIN}
+  echo "Start release build: ${release_dir}/${RELEASE_BIN}"
+  GOOS=${os} GOARCH=${arch} ${MYDIR}/build.sh ${release_dir}/${RELEASE_BIN}
 
   local release_shasum256=${RELEASE_BIN}.shasum256
   ${SHASUM} -a 256 ${release_dir}/${RELEASE_BIN} | ${AWK} '{print $1}' > ${release_dir}/${release_shasum256}
-  echo "shasum 256: $(cat ${release_dir}/${release_shasum256})"
 
   TMP_README=/tmp/readme-${os}-${arch}-${RELEASE_BIN}.md
   _gen_readme
@@ -67,10 +60,8 @@ source scripts/_prepare.sh
 
 if [ $# -eq 2 ]
 then
-  echo ">>> release os: ${1}, arch: ${2}"
   build ${1} ${2}
 else
-  echo ">>> release all platform"
   all
 fi
 
