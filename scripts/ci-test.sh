@@ -1,11 +1,10 @@
 #!/bin/bash
-MYDIR=$(cd $(dirname $0) && pwd)
-BASE_DIR=${MYDIR}/..
+set -eu
 
-set -e
+source scripts/_prepare.sh
+
 echo "" > coverage.txt
-
-for d in $(go list ./... | grep -v vendor); do
+for d in $(${MYDIR}/_packages.sh); do
     go test -race -coverprofile=profile.out -covermode=atomic $d
     if [ -f profile.out ]; then
         cat profile.out >> coverage.txt

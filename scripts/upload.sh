@@ -63,7 +63,6 @@ EOF
 }
 
 source scripts/_prepare.sh
-VERSION=$(${BASE_DIR}/scripts/_version.sh)
 
 if [ $# -eq 1 ]
 then
@@ -71,4 +70,3 @@ then
 else
   upload && formula
 fi
-
