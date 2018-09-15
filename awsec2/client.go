@@ -2,7 +2,9 @@ package awsec2
 
 import (
 	"fmt"
+	"os"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -90,17 +92,19 @@ func (client *Client) filterParams() *ec2.DescribeInstancesInput {
 }
 
 func (client *Client) printInfos(infos []*InstanceInfo) {
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 4, ' ', 0)
 	if client.PrintHeader {
-		infos[0].printHeader()
+		w.Write([]byte(infos[0].printHeader()))
 	}
 
 	for _, info := range infos {
 		if len(client.StateName) == 0 || client.StateName == info.StateName {
 			if client.OnlyPrivateIP {
-				fmt.Printf("%s\n", info.PrivateIPAddress)
+				w.Write([]byte(fmt.Sprintf("%s\n", info.PrivateIPAddress)))
 			} else {
-				info.printRow(client.WithColor)
+				w.Write([]byte(info.printRow(client.WithColor)))
 			}
 		}
 	}
+	w.Flush()
 }

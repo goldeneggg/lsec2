@@ -62,7 +62,7 @@ func (info *InstanceInfo) ParseRow(withColor bool) string {
 	return fmt.Sprintf("%s", strings.Join(values, fieldSeparater))
 }
 
-func (info *InstanceInfo) printHeader() {
+func (info *InstanceInfo) printHeader() string {
 	var headers []string
 
 	rt := reflect.TypeOf(*info)
@@ -71,11 +71,11 @@ func (info *InstanceInfo) printHeader() {
 		headers = append(headers, field.Tag.Get("header"))
 	}
 
-	fmt.Printf("%s\n", strings.Join(headers, fieldSeparater))
+	return fmt.Sprintf("%s\n", strings.Join(headers, fieldSeparater))
 }
 
-func (info *InstanceInfo) printRow(withColor bool) {
-	fmt.Printf("%s\n", info.ParseRow(withColor))
+func (info *InstanceInfo) printRow(withColor bool) string {
+	return fmt.Sprintf("%s\n", info.ParseRow(withColor))
 }
 
 func (info *InstanceInfo) decorateStateName(withColor bool) string {
