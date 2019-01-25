@@ -92,7 +92,14 @@ func (client *Client) filterParams() *ec2.DescribeInstancesInput {
 }
 
 func (client *Client) printInfos(infos []*InstanceInfo) {
-	w := tabwriter.NewWriter(os.Stdout, 0, 4, 4, ' ', 0)
+	const (
+		minWidth      = 0
+		tabWidth      = 4
+		padding       = 4
+		padChar       = ' '
+		tabWriterFlag = 0
+	)
+	w := tabwriter.NewWriter(os.Stdout, minWidth, tabWidth, padding, padChar, tabWriterFlag)
 	if client.PrintHeader {
 		w.Write([]byte(infos[0].printHeader()))
 	}
