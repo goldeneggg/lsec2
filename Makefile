@@ -11,11 +11,8 @@ PROF_TARGET := ./awsec2
 version:
 	@echo $(VERSION)
 
-dep:
-	@dep ensure -v
-
-dep-status:
-	@dep status -v
+mod-dl:
+	@GO111MODULE=on go mod download
 
 bin/$(NAME): $(SRCS)
 	@./scripts/build.sh bin/$(NAME)
