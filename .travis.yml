@@ -1,14 +1,15 @@
 language: go
 
 go:
-  - 1.8
-  - tip
+  - 1.11.x
 
 sudo: false
 
-before_install:
-  - go get -u github.com/golang/dep/cmd/dep
-  - dep ensure
+env:
+  - GO111MODULE=on
+
+install:
+  - go mod download
 
 script:
   - make ci-test

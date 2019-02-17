@@ -8,30 +8,23 @@
 ### Install Go
 Please setup Golang environment, follow [Getting Started \- The Go Programming Language](https://golang.org/doc/instal)
 
-__(required version 1.6 or later)__ , and recommend version 1.9 or later
+__(required version 1.11 or later)__
 
 ### Fork
 * Fork [lsec2](https://github.com/goldeneggg/lsec2/fork)
-* Download forked repositry in your `$GOPATH`
+* Download forked repositry in your machine.
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/goldeneggg
-$ cd $GOPATH/src/github.com/goldeneggg
 $ git clone <forked repositry URL>
 $ cd lsec2
 $ git remote add upstream https://github.com/goldeneggg/lsec2
 ```
 
-### Install dep
-* [Setup golang/dep: Go dependency management tool](https://github.com/golang/dep#setup)
+### Download dependency libraries
 
 ```sh
-$ go get -u github.com/golang/dep/cmd/dep
+$ make mod-dl
 ```
-
-### Add dependencies on local
-
-* Run `make dep`
 
 ### Run tests
 
