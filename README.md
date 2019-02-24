@@ -14,8 +14,20 @@ List view of aws ec2 instances
 ### Using Homebrew for OS X
 
 ```sh
-$ brew tap goldeneggg/lsec2
-$ brew install lsec2
+$ brew install goldeneggg/tap/lsec2
+```
+
+___Note:___
+
+If you have already installed an old version's lsec2 using `brew tap goldenegg/lsec2` command and `brew install lsec2` command, please uninstall old version.
+
+```sh
+# uninstall old tap version
+$ brew uninstall lsec2
+$ brew untap goldeneggg/lsec2
+
+# and install new tap version
+$ brew install goldeneggg/tap/lsec2
 ```
 
 ### Or `go get`
