@@ -2,11 +2,17 @@ language: go
 
 go:
   - 1.11.x
+  - 1.12.x
   - master
 
 matrix:
   allow_failures:
     - go: master
+
+addons:
+  apt:
+    packages:
+      - rpm
 
 sudo: false
 
@@ -14,6 +20,7 @@ env:
   - GO111MODULE=on
 
 install:
+  - echo $TRAVIS_GO_VERSION
   - go mod download
 
 script:
@@ -28,4 +35,8 @@ deploy:
     script: curl -sL http://git.io/goreleaser | bash
     on:
       tags: true
-      condition: $TRAVIS_OS_NAME = linux
+      condition: $TRAVIS_OS_NAME = linux && $TRAVIS_GO_VERSION =~ ^1\.12.*
+
+notifications:
+  email:
+    on_success: never
