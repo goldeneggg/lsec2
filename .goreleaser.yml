@@ -50,3 +50,13 @@ brew:
   description: 'List view of aws ec2 instances'
   test: |
     system '#{bin}/lsec2 -v'
+
+# Note:
+# "brew install rpm" is required on OS X
+nfpm:
+  license: MIT
+  maintainer: Fuminori Sakamoto
+  homepage: https://github.com/goldeneggg/lsec2
+  formats:
+    - deb
+    - rpm

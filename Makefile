@@ -52,11 +52,13 @@ vendor-build:
 	@./scripts/build.sh bin/$(NAME) "-mod vendor"
 
 lint-travis:
-	@travis lint .travis.yml
+	@travis lint --org --debug .travis.yml
 
 test-goreleaser:
 	@goreleaser release --snapshot --skip-publish --rm-dist
-  
+
+# Duplicated tasks as follows
+
 .PHONY: release
 release:
 	@./scripts/release.sh
