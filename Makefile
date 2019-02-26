@@ -8,6 +8,7 @@ PROF_TARGET := ./awsec2
 
 .DEFAULT_GOAL := bin/$(NAME)
 
+.PHONY: version
 version:
 	@echo $(VERSION)
 
@@ -17,26 +18,46 @@ mod-dl:
 bin/$(NAME): $(SRCS)
 	@./scripts/build.sh bin/$(NAME)
 
+.PHONY: install
 install:
 	@go install -v -ldflags='$(LDFLAGS)'
 
+.PHONY: test
 test:
 	@go test -race -cover -v $(PACKAGES)
 
 ci-test:
 	@./scripts/ci-test.sh
 
+.PHONY: prof
 prof:
 	@[ ! -d $(PROF_DIR) ] && mkdir $(PROF_DIR); go test -bench . -benchmem -blockprofile $(PROF_DIR)/block.out -cover -coverprofile $(PROF_DIR)/cover.out -cpuprofile $(PROF_DIR)/cpu.out -memprofile $(PROF_DIR)/mem.out $(PROF_TARGET)
 
+.PHONY: vet
 vet:
 	@go vet -n -x $(PACKAGES)
 
+.PHONY: lint
 lint:
 	@${GOBIN}/golint -set_exit_status $(PACKAGES)
 
+.PHONY: validate
 validate: vet lint
+
+.PHONY: vendor
+vendor:
+	@GO111MODULE=on go mod vendor
+
+vendor-build:
+	@./scripts/build.sh bin/$(NAME) "-mod vendor"
+
+lint-travis:
+	@travis lint .travis.yml
+
+test-goreleaser:
+	@goreleaser release --snapshot --skip-publish --rm-dist
   
+.PHONY: release
 release:
 	@./scripts/release.sh
 
@@ -67,10 +88,13 @@ release-freebsd-386:
 release-freebsd-amd64:
 	@./scripts/release.sh freebsd amd64
 
+.PHONY: upload
 upload:
 	@./scripts/upload.sh
 
+.PHONY: formula
 formula:
 	@./scripts/upload.sh formula-only
 
+.PHONY: publish
 publish: release upload

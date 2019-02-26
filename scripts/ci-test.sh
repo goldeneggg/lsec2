@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -eux
 
 source scripts/_prepare.sh
 
