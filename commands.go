@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/goldeneggg/lsec2/awsec2"
 	"github.com/urfave/cli"
 )
-
-import "github.com/goldeneggg/lsec2/awsec2"
 
 func run(args []string) error {
 	app := cli.NewApp()

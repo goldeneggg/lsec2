@@ -11,6 +11,13 @@ import (
 	"github.com/fatih/color"
 )
 
+const (
+	parsedTagSeparator = ","
+	fieldSeparater     = "\t"
+
+	undefinedItem = "UNDEFINED"
+)
+
 // InstanceInfo is attributes of aws ec2 instance
 type InstanceInfo struct {
 	InstanceID       string            `header:"INSTANCE_ID"`

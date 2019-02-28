@@ -10,9 +10,9 @@ const (
 	exitStsNg
 )
 
-var sts int
-
 var (
+	sts int
+
 	version     string
 	buildDate   string
 	buildCommit string

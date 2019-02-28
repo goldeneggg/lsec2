@@ -9,6 +9,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
+const (
+	tagFilterPrefix   = "tag:"
+	tagPairSeparator  = "="
+	tagValueSeparator = ","
+
+	defaultTagValuesCap = 3
+)
+
 // Client is options definition of print
 // client attributes
 type Client struct {
@@ -34,11 +42,7 @@ func (client *Client) Print() error {
 }
 
 func (client *Client) buildInfos() ([]*InstanceInfo, error) {
-	sess, err := session.NewSession(&aws.Config{Region: aws.String(client.Region)})
-	if err != nil {
-		return nil, fmt.Errorf("aws new session error: %v", err)
-	}
-
+	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(client.Region)}))
 	svc := ec2.New(sess)
 
 	output, err := svc.DescribeInstances(client.filterParams())
@@ -70,7 +74,7 @@ func (client *Client) filterParams() *ec2.DescribeInstancesInput {
 	for _, tag := range client.Tags {
 		tagNameValue := strings.Split(tag, tagPairSeparator)
 		name := aws.String(tagFilterPrefix + tagNameValue[0])
-		values := make([]*string, 0, 3)
+		values := make([]*string, 0, defaultTagValuesCap)
 		for _, value := range strings.Split(tagNameValue[1], tagValueSeparator) {
 			values = append(values, aws.String(value))
 		}
