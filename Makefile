@@ -15,6 +15,9 @@ version:
 mod-dl:
 	@GO111MODULE=on go mod download
 
+mod-tidy:
+	@GO111MODULE=on go mod tidy
+
 bin/$(NAME): $(SRCS)
 	@./scripts/build.sh bin/$(NAME)
 
