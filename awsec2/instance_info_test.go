@@ -1,4 +1,4 @@
-package awsec2_test
+package awsec2
 
 import (
 	"fmt"
@@ -6,10 +6,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-)
-
-import (
-	. "github.com/goldeneggg/lsec2/awsec2"
 )
 
 const (
@@ -30,6 +26,11 @@ type infoTest struct {
 	in             *ec2.Instance
 	expected       *InstanceInfo
 	expectedParsed string
+}
+
+type headerTest struct {
+	in       *InstanceInfo
+	expected string
 }
 
 var infoTests = []infoTest{
@@ -147,6 +148,23 @@ var infoTests = []infoTest{
 	},
 }
 
+var headerTests = []headerTest{
+	{
+		in: &InstanceInfo{
+			InstanceID:       dummyInstanceID,
+			PrivateIPAddress: dummyPrivateIPAddress,
+			PublicIPAddress:  dummyPublicIPAddress,
+			InstanceType:     dummyInstanceType,
+			StateName:        dummyStateName,
+			Tags: map[string]string{
+				dummyTagKeys[0]: dummyTagValues[0],
+				dummyTagKeys[1]: dummyTagValues[1],
+			},
+		},
+		expected: "INSTANCE_ID\tPRIVATE_IP\tPUBLIC_IP\tTYPE\tSTATE\tTAGS\n",
+	},
+}
+
 func TestNewInstanceInfo(t *testing.T) {
 	for _, it := range infoTests {
 		out, err := NewInstanceInfo(it.in)
@@ -202,6 +220,16 @@ func TestParseRow(t *testing.T) {
 		out := it.expected.ParseRow(false)
 		if out != it.expectedParsed {
 			t.Errorf("expected: [%s], but out: [%s]", it.expectedParsed, out)
+		}
+	}
+}
+
+func TestPrintHeader(t *testing.T) {
+	var _ = (*InstanceInfo).printHeader
+	for _, it := range headerTests {
+		out := it.in.printHeader()
+		if (out != it.expected) {
+			t.Errorf("expected: %#v, but out: %#v", it.expected, out)
 		}
 	}
 }
