@@ -101,15 +101,24 @@ func (client *Client) printInfos(infos []*InstanceInfo) {
 	)
 	w := tabwriter.NewWriter(os.Stdout, minWidth, tabWidth, padding, padChar, tabWriterFlag)
 	if client.PrintHeader {
-		w.Write([]byte(infos[0].printHeader()))
+		_, err := w.Write([]byte(infos[0].printHeader()))
+		if err != nil {
+			fmt.Errorf("printHeader error: %v", err)
+        }
 	}
 
 	for _, info := range infos {
 		if len(client.StateName) == 0 || client.StateName == info.StateName {
 			if client.OnlyPrivateIP {
-				w.Write([]byte(fmt.Sprintf("%s\n", info.PrivateIPAddress)))
+				_, err := w.Write([]byte(fmt.Sprintf("%s\n", info.PrivateIPAddress)))
+				if err != nil {
+					fmt.Errorf("%v", err)
+				}
 			} else {
-				w.Write([]byte(info.printRow(client.WithColor)))
+				_, err := w.Write([]byte(info.printRow(client.WithColor)))
+				if err != nil {
+					fmt.Errorf("%v", err)
+				}
 			}
 		}
 	}
