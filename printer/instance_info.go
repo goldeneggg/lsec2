@@ -1,7 +1,6 @@
-package awsec2
+package printer
 
 import (
-	"fmt"
 	"reflect"
 	"sort"
 	"strings"
@@ -13,9 +12,7 @@ import (
 
 const (
 	parsedTagSeparator = ","
-	fieldSeparater     = "\t"
-
-	undefinedItem = "UNDEFINED"
+	undefinedItem      = "UNDEFINED"
 )
 
 // InstanceInfo is attributes of aws ec2 instance
@@ -29,11 +26,12 @@ type InstanceInfo struct {
 }
 
 // NewInstanceInfo creates a new InstanceInfo
-func NewInstanceInfo(instance *ec2.Instance) (*InstanceInfo, error) {
+func NewInstanceInfo(instance *ec2.Instance) *InstanceInfo {
 	if instance == nil {
-		return nil, fmt.Errorf("ec2.Instance: %v is invalid", instance)
+		return &InstanceInfo{}
 	}
 
+	// TODO: coldef.yml対応
 	i := &InstanceInfo{
 		InstanceID:       fetchItem(instance.InstanceId),
 		PrivateIPAddress: fetchItem(instance.PrivateIpAddress),
@@ -51,11 +49,23 @@ func NewInstanceInfo(instance *ec2.Instance) (*InstanceInfo, error) {
 		i.Tags = tags
 	}
 
-	return i, nil
+	return i
+}
+
+func (info *InstanceInfo) Headers() []string {
+	var headers []string
+
+	rt := reflect.TypeOf(*info)
+	for i := 0; i < rt.NumField(); i++ {
+		field := rt.Field(i)
+		headers = append(headers, field.Tag.Get("header"))
+	}
+
+	return headers
 }
 
 // ParseRow parses from InstanceInfo to one line string
-func (info *InstanceInfo) ParseRow(withColor bool) string {
+func (info *InstanceInfo) Values(withColor bool) []string {
 	var values []string
 
 	values = append(values, info.InstanceID)
@@ -66,23 +76,7 @@ func (info *InstanceInfo) ParseRow(withColor bool) string {
 
 	values = append(values, strings.Join(info.parseTags(), parsedTagSeparator))
 
-	return fmt.Sprintf("%s", strings.Join(values, fieldSeparater))
-}
-
-func (info *InstanceInfo) printHeader() {
-	var headers []string
-
-	rt := reflect.TypeOf(*info)
-	for i := 0; i < rt.NumField(); i++ {
-		field := rt.Field(i)
-		headers = append(headers, field.Tag.Get("header"))
-	}
-
-	fmt.Printf("%s\n", strings.Join(headers, fieldSeparater))
-}
-
-func (info *InstanceInfo) printRow(withColor bool) {
-	fmt.Printf("%s\n", info.ParseRow(withColor))
+	return values
 }
 
 func (info *InstanceInfo) decorateStateName(withColor bool) string {

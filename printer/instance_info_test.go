@@ -1,4 +1,4 @@
-package awsec2_test
+package printer_test
 
 import (
 	"fmt"
@@ -6,10 +6,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-)
 
-import (
-	. "github.com/goldeneggg/lsec2/awsec2"
+	. "github.com/goldeneggg/lsec2/printer"
 )
 
 const (
