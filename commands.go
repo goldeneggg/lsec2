@@ -15,9 +15,7 @@ func run(args []string) error {
 	app.Author = "goldeneggg"
 	app.Version = VERSION
 	app.Usage = "Listing information of aws ec2 instances"
-	//app.Flags = globalFlags
 	app.Flags = append(globalFlags, showFlags...)
-	//app.Commands = commands
 	app.Action = action
 
 	return app.Run(args)
