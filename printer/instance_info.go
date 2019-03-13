@@ -52,6 +52,7 @@ func NewInstanceInfo(instance *ec2.Instance) *InstanceInfo {
 	return i
 }
 
+// Headers gets header string array
 func (info *InstanceInfo) Headers() []string {
 	var headers []string
 
@@ -64,7 +65,7 @@ func (info *InstanceInfo) Headers() []string {
 	return headers
 }
 
-// ParseRow parses from InstanceInfo to one line string
+// Values gets value string array
 func (info *InstanceInfo) Values(withColor bool) []string {
 	var values []string
 

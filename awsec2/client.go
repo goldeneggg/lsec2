@@ -41,7 +41,7 @@ func NewClient(region string, maybeEC2Client interface{}) *Client {
 	return client
 }
 
-// Get filtered EC2 instances
+// EC2Instances gets filtered EC2 instances
 func (client *Client) EC2Instances() ([]*ec2.Instance, error) {
 	output, err := client.EC2API.DescribeInstances(client.buildFilter())
 	if err != nil {

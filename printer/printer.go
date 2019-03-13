@@ -56,8 +56,7 @@ func NewPrinter(maybeWriter interface{}) *Printer {
 	return printer
 }
 
-// Print is print method for aws ec2 instances
-// print information of aws ec2 instances
+// PrintAll prints information all of aws ec2 instances
 func (printer *Printer) PrintAll(client *awsec2.Client) error {
 	instances, err := client.EC2Instances()
 	if err != nil {
@@ -68,7 +67,9 @@ func (printer *Printer) PrintAll(client *awsec2.Client) error {
 	defer printer.flushIfFlushable()
 
 	if printer.PrintHeader {
-		printer.printHeader()
+		if err := printer.printHeader(); err != nil {
+			return fmt.Errorf("print header error: %v", err)
+		}
 	}
 
 	for _, inst := range instances {
@@ -103,8 +104,8 @@ func (printer *Printer) flushIfFlushable() {
 	}
 }
 
-func (printer *Printer) printHeader() {
-	printer.printArray(NewInstanceInfo(nil).Headers())
+func (printer *Printer) printHeader() error {
+	return printer.printArray(NewInstanceInfo(nil).Headers())
 }
 
 func (printer *Printer) printInstance(client *awsec2.Client, inst *ec2.Instance) error {
