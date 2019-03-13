@@ -11,11 +11,15 @@ import (
 )
 
 var (
-	BuildDate   string
+	// BuildDate have a built date
+	BuildDate string
+	// BuildCommit have a latest commit hash
 	BuildCommit string
-	GoVersion   string
+	// GoVersion have a go version number used for build
+	GoVersion string
 )
 
+// Run run a cli command
 func Run(args []string) error {
 	app := cli.NewApp()
 
