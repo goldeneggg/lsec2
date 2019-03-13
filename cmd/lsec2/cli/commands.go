@@ -1,20 +1,27 @@
-package main
+package cli
 
 import (
 	"fmt"
 	"os"
 
 	"github.com/goldeneggg/lsec2/awsec2"
+	"github.com/goldeneggg/lsec2/cmd/lsec2/version"
 	"github.com/goldeneggg/lsec2/printer"
 	"github.com/urfave/cli"
 )
 
-func run(args []string) error {
+var (
+	BuildDate   string
+	BuildCommit string
+	GoVersion   string
+)
+
+func Run(args []string) error {
 	app := cli.NewApp()
 
 	app.Name = "lsec2"
 	app.Author = "goldeneggg"
-	app.Version = VERSION
+	app.Version = version.VERSION
 	app.Usage = "Listing information of aws ec2 instances"
 	app.Flags = append(ec2Flags, printFlags...)
 	app.Action = action
@@ -22,16 +29,18 @@ func run(args []string) error {
 	return app.Run(args)
 }
 
-func action(c *cli.Context) {
+func action(c *cli.Context) error {
 	if c.IsSet("show-build") {
 		showBuildInfo(c)
-		return
+		return nil
 	}
 
 	if err := newPrinter(c).PrintAll(newClient(c)); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		sts = exitStsNg
+		return err
 	}
+
+	return nil
 }
 
 func newClient(c *cli.Context) *awsec2.Client {
@@ -69,6 +78,7 @@ func newPrinter(c *cli.Context) *printer.Printer {
 }
 
 func showBuildInfo(c *cli.Context) {
-	fmt.Printf("build-date: %v\n", buildDate)
-	fmt.Printf("build-commit: %v\n", buildCommit)
+	fmt.Printf("build-date: %v\n", BuildDate)
+	fmt.Printf("build-commit: %v\n", BuildCommit)
+	fmt.Printf("go-version: %v\n", GoVersion)
 }

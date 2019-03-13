@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/goldeneggg/lsec2/cmd/lsec2/cli"
 )
 
 const (
@@ -12,16 +14,12 @@ const (
 
 var (
 	sts int
-
-	version     string
-	buildDate   string
-	buildCommit string
 )
 
 func main() {
 	defer finalize()
 
-	if err := run(os.Args); err != nil {
+	if err := cli.Run(os.Args); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		sts = exitStsNg
 	}

@@ -1,16 +1,13 @@
 NAME := lsec2
 SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor')
-VERSION := $(shell ./scripts/_version.sh)
-LDFLAGS := $(shell ./scripts/_ldflags.sh)
 PACKAGES := $(shell ./scripts/_packages.sh)
 PROF_DIR := ./.profile
-PROF_TARGET := ./awsec2
 
 .DEFAULT_GOAL := bin/$(NAME)
 
 .PHONY: version
 version:
-	@echo $(VERSION)
+	@echo $(shell ./scripts/_version.sh)
 
 mod-dl:
 	@GO111MODULE=on go mod download
@@ -23,7 +20,7 @@ bin/$(NAME): $(SRCS)
 
 .PHONY: install
 install:
-	@go install -v -ldflags='$(LDFLAGS)'
+	@./scripts/install.sh
 
 .PHONY: test
 test:
@@ -34,7 +31,16 @@ ci-test:
 
 .PHONY: prof
 prof:
-	@[ ! -d $(PROF_DIR) ] && mkdir $(PROF_DIR); go test -bench . -benchmem -blockprofile $(PROF_DIR)/block.out -cover -coverprofile $(PROF_DIR)/cover.out -cpuprofile $(PROF_DIR)/cpu.out -memprofile $(PROF_DIR)/mem.out $(PROF_TARGET)
+	@[ ! -d $(PROF_DIR) ] && mkdir $(PROF_DIR); go test -bench . -benchmem -cover -coverprofile $(PROF_DIR)/cover.out $(PACKAGES)
+
+prof-full-awsec2:
+	@[ ! -d $(PROF_DIR) ] && mkdir $(PROF_DIR); go test -bench . -benchmem -blockprofile $(PROF_DIR)/block.out -cover -coverprofile $(PROF_DIR)/cover.out -cpuprofile $(PROF_DIR)/cpu.out -memprofile $(PROF_DIR)/mem.out ./awsec2
+
+prof-full-printer:
+	@[ ! -d $(PROF_DIR) ] && mkdir $(PROF_DIR); go test -bench . -benchmem -blockprofile $(PROF_DIR)/block.out -cover -coverprofile $(PROF_DIR)/cover.out -cpuprofile $(PROF_DIR)/cpu.out -memprofile $(PROF_DIR)/mem.out ./printer
+
+prof-full-cmd-cli:
+	@[ ! -d $(PROF_DIR) ] && mkdir $(PROF_DIR); go test -bench . -benchmem -blockprofile $(PROF_DIR)/block.out -cover -coverprofile $(PROF_DIR)/cover.out -cpuprofile $(PROF_DIR)/cpu.out -memprofile $(PROF_DIR)/mem.out ./cmd/lsec2/cli
 
 .PHONY: vet
 vet:

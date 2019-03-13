@@ -1,10 +1,9 @@
 #!/bin/bash
 set -eu
 
-MYDIR=$(cd $(dirname $0) && pwd)
-BASE_DIR=${MYDIR}/..
+source scripts/_prepare.sh
 
 GREP=$(which grep)
 SED=$(which sed)
 
-${GREP} "const VERSION" ${BASE_DIR}/version.go | ${SED} -e 's/const VERSION = //g' | ${SED} -e 's/\"//g'
+${GREP} "const VERSION" ${CMD_GO_DIR}/version/version.go | ${SED} -e 's/const VERSION = //g' | ${SED} -e 's/\"//g'
