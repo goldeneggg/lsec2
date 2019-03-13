@@ -1,13 +1,24 @@
-lsec2
-==========
-
-List view of aws ec2 instances
+# lsec2
 
 [![Build Status](https://travis-ci.org/goldeneggg/lsec2.svg?branch=master)](https://travis-ci.org/goldeneggg/lsec2)
-[![GolangCI](https://golangci.com/badges/github.com/goldeneggg/gat.svg)](https://golangci.com/r/github.com/goldeneggg/lsec2)
 [![Go Report Card](https://goreportcard.com/badge/github.com/goldeneggg/lsec2)](https://goreportcard.com/report/github.com/goldeneggg/lsec2)
+[![GolangCI](https://golangci.com/badges/github.com/goldeneggg/gat.svg)](https://golangci.com/r/github.com/goldeneggg/lsec2)
 [![Codecov](https://codecov.io/github/goldeneggg/lsec2/coverage.svg?branch=master)](https://codecov.io/github/goldeneggg/lsec2?branch=master)
 [![MIT License](http://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/goldeneggg/lsec2/blob/master/LICENSE)
+
+List view of AWS EC2 instances.
+
+Example as follows.
+
+```sh
+$ lsec2 -H
+```
+```
+INSTANCE_ID            PRIVATE_IP         PUBLIC_IP         TYPE        STATE      TAGS
+i-0xxxxxxxxxxxxxx1     172.111.111.111    54.111.111.111    t2.micro    running    TagA=ValueA,TagB=ValueB
+i-0xxxxxxxxxxxxxx2     172.222.222.222    54.222.222.222    t2.medium   running    TagAA=ValueAA
+i-0xxxxxxxxxxxxxx3     172.333.333.333    54.333.333.333    t1.large    stopped
+```
 
 ## Install
 
