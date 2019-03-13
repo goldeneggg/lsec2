@@ -72,3 +72,11 @@ test-goreleaser:
 
 ci-goreleaser:
 	@export GOVERSION=$(GOVERSION) && curl -sL http://git.io/goreleaser | bash -s -- release --snapshot --skip-publish --rm-dist
+
+.PHONY: clean
+clean:
+	@go clean $(PACKAGES)
+	@rm -f bin/$(NAME)
+	@rm -fr dist pkg
+	@find . -name '*.test' -delete
+	@rm -fr $(PROF_DIR)
