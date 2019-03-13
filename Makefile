@@ -2,6 +2,7 @@ NAME := lsec2
 SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor')
 PACKAGES := $(shell ./scripts/_packages.sh)
 PROF_DIR := ./.profile
+GOVERSION := $(shell go version | awk '{print $$3;}')
 
 .DEFAULT_GOAL := bin/$(NAME)
 
@@ -28,6 +29,9 @@ test:
 
 ci-test:
 	@./scripts/ci-test.sh
+
+.PHONY: ci
+ci: ci-test ci-goreleaser
 
 .PHONY: prof
 prof:
@@ -64,4 +68,7 @@ lint-travis:
 	@travis lint --org --debug .travis.yml
 
 test-goreleaser:
-	@goreleaser release --snapshot --skip-publish --rm-dist
+	@GOVERSION=$(GOVERSION) goreleaser release --snapshot --skip-publish --rm-dist
+
+ci-goreleaser:
+	@export GOVERSION=$(GOVERSION) && curl -sL http://git.io/goreleaser | bash -s -- release --snapshot --skip-publish --rm-dist

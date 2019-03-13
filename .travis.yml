@@ -32,7 +32,7 @@ after_success:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: curl -sL http://git.io/goreleaser | bash
+    script: export GOVERSION=$TRAVIS_GO_VERSION && curl -sL http://git.io/goreleaser | bash
     on:
       tags: true
       condition: $TRAVIS_OS_NAME = linux && $TRAVIS_GO_VERSION =~ ^1\.12.*
