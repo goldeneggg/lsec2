@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"strings"
-	"text/tabwriter"
 
 	"github.com/aws/aws-sdk-go/service/ec2"
 
@@ -14,12 +13,6 @@ import (
 
 const (
 	defaultDelimiter = "\t"
-
-	tabMinWidth = 0
-	tabTabWidth = 4
-	tabPadding  = 4
-	tabPadChar  = ' '
-	tabFlags    = 0
 )
 
 /*
@@ -60,17 +53,7 @@ func NewPrinter(delim string, header, onlyPvtIP, withColor bool, w interface{}) 
 }
 
 func defaultWriter(delim string) io.Writer {
-	if delim == defaultDelimiter {
-		return tabwriter.NewWriter(
-			os.Stdout,
-			tabMinWidth,
-			tabTabWidth,
-			tabPadding,
-			tabPadChar,
-			tabFlags,
-		)
-	}
-
+	// pretty print customize is here
 	return os.Stdout
 }
 
