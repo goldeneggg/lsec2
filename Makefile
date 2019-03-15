@@ -46,7 +46,7 @@ vet:
 
 .PHONY: lint
 lint:
-	@${GOBIN}/golint -set_exit_status $(PACKAGES)
+	@golint -set_exit_status $(PACKAGES)
 
 .PHONY: validate
 validate: vet lint
