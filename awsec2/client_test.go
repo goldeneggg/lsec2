@@ -65,35 +65,49 @@ func (mock *mockEC2API) DescribeInstances(input *ec2.DescribeInstancesInput) (*e
 func TestNewClient(t *testing.T) {
 	cases := []struct {
 		region   string
+		state    string
 		profile  string
+		tags     []string
 		expected *Client
 	}{
 		{
 			region:  "ap-northeast-1",
+			state:   "running",
 			profile: "",
+			tags:    []string{"Tag1=Value1", "Tag2=Value2"},
 			expected: &Client{
-				StateName: "",
-				Tags:      []string{},
+				StateName: "running",
+				Tags:      []string{"Tag1=Value1", "Tag2=Value2"},
 			},
 		},
 		{
 			region:  "us-east-1",
+			state:   "stopped",
 			profile: "test",
+			tags:    []string{},
 			expected: &Client{
-				StateName: "",
+				StateName: "stopped",
 				Tags:      []string{},
 			},
 		},
 	}
 
 	for _, c := range cases {
-		client := NewClient(c.region, c.profile)
+		client, err := NewClient(c.region, c.state, c.profile, c.tags)
+		if err != nil {
+			t.Errorf("error occured. err: %#v", err)
+		}
 
 		if client.StateName != c.expected.StateName {
 			t.Errorf("expected: %#v, but actual: %#v", c.expected.StateName, client.StateName)
 		}
-		if client.Tags != nil {
-			t.Errorf("expected: nil, but actual: %#v", client.Tags)
+		for i, tag := range client.Tags {
+			if tag != c.expected.Tags[i] {
+				t.Errorf("expected: %#v, but actual: %#v", c.expected.Tags[i], tag)
+			}
+		}
+		if _, ok := client.EC2API.(*ec2.EC2); !ok {
+			t.Errorf("expected: *ec2.EC2, but actual: %#v", client.EC2API)
 		}
 	}
 }
@@ -102,21 +116,41 @@ func TestNewClientEC2API(t *testing.T) {
 	mockClient := &mockEC2API{}
 
 	cases := []struct {
+		region    string
+		state     string
+		profile   string
+		tags      []string
 		ec2Client ec2iface.EC2API
 		expected  *Client
 	}{
 		{
+			region:    "ap-northeast-1",
+			state:     "running",
+			profile:   "",
+			tags:      []string{"Tag1=Value1", "Tag2=Value2"},
 			ec2Client: mockClient,
 			expected: &Client{
-				StateName: "",
-				Tags:      []string{},
 				EC2API:    mockClient,
+				StateName: "running",
+				Tags:      []string{"Tag1=Value1", "Tag2=Value2"},
+			},
+		},
+		{
+			region:    "us-east-1",
+			state:     "stopped",
+			profile:   "test",
+			tags:      []string{},
+			ec2Client: mockClient,
+			expected: &Client{
+				EC2API:    mockClient,
+				StateName: "stopped",
+				Tags:      []string{},
 			},
 		},
 	}
 
 	for _, c := range cases {
-		client, err := NewClientWithEC2API(c.ec2Client)
+		client, err := NewClientWithEC2API(c.region, c.state, c.profile, c.tags, c.ec2Client)
 		if err != nil {
 			t.Errorf("error occured. err: %#v", err)
 		}
@@ -124,8 +158,10 @@ func TestNewClientEC2API(t *testing.T) {
 		if client.StateName != c.expected.StateName {
 			t.Errorf("expected: %#v, but actual: %#v", c.expected.StateName, client.StateName)
 		}
-		if client.Tags != nil {
-			t.Errorf("expected: nil, but actual: %#v", client.Tags)
+		for i, tag := range client.Tags {
+			if tag != c.expected.Tags[i] {
+				t.Errorf("expected: %#v, but actual: %#v", c.expected.Tags[i], tag)
+			}
 		}
 		if client.EC2API != c.expected.EC2API {
 			t.Errorf("expected: %#v, but actual: %#v", c.expected.EC2API, client.EC2API)

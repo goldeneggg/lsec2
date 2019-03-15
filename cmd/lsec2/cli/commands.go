@@ -38,42 +38,25 @@ func action(c *cli.Context) error {
 		return nil
 	}
 
-	if err := newPrinter(c).PrintAll(newClient(c)); err != nil {
+	pr := newPrinter(c)
+	client, err := newClient(c)
+	if err != nil {
+		return err
+	}
+
+	if err := pr.PrintAll(client); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func newClient(c *cli.Context) *awsec2.Client {
-	client := awsec2.NewClient(c.String("region"), c.String("profile"))
-
-	client.Tags = c.Args()
-	if c.IsSet("s") {
-		client.StateName = c.String("s")
-	}
-
-	return client
+func newPrinter(c *cli.Context) *printer.Printer {
+	return printer.NewPrinter(c.String("d"), c.Bool("H"), c.Bool("p"), c.Bool("c"), nil)
 }
 
-func newPrinter(c *cli.Context) *printer.Printer {
-	printer := printer.NewPrinter(nil)
-
-	if c.IsSet("H") {
-		printer.PrintHeader = c.Bool("H")
-	}
-	if c.IsSet("p") {
-		printer.OnlyPrivateIP = c.Bool("p")
-		printer.PrintHeader = false
-	}
-	if c.IsSet("c") {
-		printer.WithColor = c.Bool("c")
-	}
-	if c.IsSet("d") {
-		printer.Delimiter = c.String("d")
-	}
-
-	return printer
+func newClient(c *cli.Context) (*awsec2.Client, error) {
+	return awsec2.NewClient(c.String("region"), c.String("s"), c.String("profile"), c.Args())
 }
 
 func showBuildInfo(c *cli.Context) {

@@ -27,23 +27,28 @@ type Client struct {
 }
 
 // NewClient returns a new DefaultClient
-func NewClient(region string, profile string) *Client {
-	client := new(Client)
-	client.EC2API = defaultEC2Client(region, profile)
-
-	return client
+func NewClient(region, state, profile string, tags []string) (*Client, error) {
+	return NewClientWithEC2API(region, state, profile, tags, nil)
 }
 
 // NewClientWithEC2API returns a new Client with assigned EC2API variable
-func NewClientWithEC2API(maybeEC2Client interface{}) (*Client, error) {
+func NewClientWithEC2API(region, state, profile string, tags []string, c interface{}) (*Client, error) {
 	client := new(Client)
 
-	if ec2Client, ok := maybeEC2Client.(ec2iface.EC2API); ok {
-		client.EC2API = ec2Client
-		return client, nil
+	client.StateName = state
+	client.Tags = tags
+
+	if c != nil {
+		if ec2, ok := c.(ec2iface.EC2API); ok {
+			client.EC2API = ec2
+		} else {
+			return nil, fmt.Errorf("arg %#v does not implement ec2.EC2API methods", c)
+		}
+	} else {
+		client.EC2API = defaultEC2Client(region, profile)
 	}
 
-	return nil, fmt.Errorf("maybeEC2Client %#v does not implement ec2.EC2API methods", maybeEC2Client)
+	return client, nil
 }
 
 // EC2Instances gets filtered EC2 instances

@@ -22,10 +22,6 @@ const (
 	tabFlags    = 0
 )
 
-var (
-	defaultWriter = os.Stdout
-)
-
 /*
 type flushableWriter interface {
 	io.Writer
@@ -36,25 +32,46 @@ type flushableWriter interface {
 // Printer is options definition of print
 type Printer struct {
 	io.Writer
+	Delimiter     string
 	PrintHeader   bool
 	OnlyPrivateIP bool
 	WithColor     bool
-	Delimiter     string
 }
 
 // NewPrinter returns a new Printer
-func NewPrinter(maybeWriter interface{}) *Printer {
+func NewPrinter(delim string, header, onlyPvtIP, withColor bool, w interface{}) *Printer {
 	pr := new(Printer)
 
-	pr.Delimiter = defaultDelimiter
+	if delim == "" {
+		delim = defaultDelimiter
+	}
+	pr.Delimiter = delim
+	pr.PrintHeader = header
+	pr.OnlyPrivateIP = onlyPvtIP
+	pr.WithColor = withColor
 
-	if writer, ok := maybeWriter.(io.Writer); ok {
+	if writer, ok := w.(io.Writer); ok {
 		pr.Writer = writer
 	} else {
-		pr.Writer = defaultWriter
+		pr.Writer = defaultWriter(delim)
 	}
 
 	return pr
+}
+
+func defaultWriter(delim string) io.Writer {
+	if delim == defaultDelimiter {
+		return tabwriter.NewWriter(
+			os.Stdout,
+			tabMinWidth,
+			tabTabWidth,
+			tabPadding,
+			tabPadChar,
+			tabFlags,
+		)
+	}
+
+	return os.Stdout
 }
 
 // PrintAll prints information all of aws ec2 instances
@@ -64,7 +81,6 @@ func (pr *Printer) PrintAll(client *awsec2.Client) error {
 		return fmt.Errorf("get EC2 Instances error: %v", err)
 	}
 
-	pr.wrapWriterIfDefault()
 	defer pr.flushIfFlushable()
 
 	if pr.PrintHeader {
@@ -80,21 +96,6 @@ func (pr *Printer) PrintAll(client *awsec2.Client) error {
 	}
 
 	return nil
-}
-
-func (pr *Printer) wrapWriterIfDefault() {
-	if pr.Writer == defaultWriter {
-		if pr.Delimiter == defaultDelimiter {
-			pr.Writer = tabwriter.NewWriter(
-				pr.Writer,
-				tabMinWidth,
-				tabTabWidth,
-				tabPadding,
-				tabPadChar,
-				tabFlags,
-			)
-		}
-	}
 }
 
 func (pr *Printer) flushIfFlushable() {

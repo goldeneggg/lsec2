@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"text/tabwriter"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -59,50 +60,81 @@ func (mock *mockEC2API) DescribeInstances(input *ec2.DescribeInstancesInput) (*e
 
 func TestNewPrinter(t *testing.T) {
 	dummyFile := os.NewFile(uintptr(3), "printer_test.go.out")
-
 	cases := []struct {
-		maybeWriter io.Writer
-		exp         *Printer
+		delim     string
+		header    bool
+		onlyPvtIP bool
+		withColor bool
+		w         io.Writer
+		expected  *Printer
 	}{
 		{
-			maybeWriter: nil,
-			exp: &Printer{
-				Writer: os.Stdout,
+			delim:     "",
+			header:    true,
+			onlyPvtIP: false,
+			withColor: true,
+			w:         nil,
+			expected: &Printer{
+				Delimiter:     "\t",
+				PrintHeader:   true,
+				OnlyPrivateIP: false,
+				WithColor:     true,
 			},
 		},
 		{
-			maybeWriter: dummyFile,
-			exp: &Printer{
-				Writer: dummyFile,
+			delim:     ",",
+			header:    false,
+			onlyPvtIP: true,
+			withColor: false,
+			w:         dummyFile,
+			expected: &Printer{
+				Writer:        dummyFile,
+				Delimiter:     ",",
+				PrintHeader:   false,
+				OnlyPrivateIP: true,
+				WithColor:     false,
 			},
 		},
 	}
 
 	for _, c := range cases {
-		pr := NewPrinter(c.maybeWriter)
+		pr := NewPrinter(c.delim, c.header, c.onlyPvtIP, c.withColor, c.w)
 
-		if pr.Delimiter != "\t" {
-			t.Errorf("expected: %#v, but actual: %#v", c.exp.Writer, pr.Writer)
+		if pr.Delimiter != c.expected.Delimiter {
+			t.Errorf("expected: %#v, but actual: %#v", c.expected.Delimiter, pr.Delimiter)
 		}
-
-		if pr.Writer != c.exp.Writer {
-			t.Errorf("expected: %#v, but actual: %#v", c.exp.Writer, pr.Writer)
+		if pr.PrintHeader != c.expected.PrintHeader {
+			t.Errorf("expected: %#v, but actual: %#v", c.expected.PrintHeader, pr.PrintHeader)
+		}
+		if pr.OnlyPrivateIP != c.expected.OnlyPrivateIP {
+			t.Errorf("expected: %#v, but actual: %#v", c.expected.OnlyPrivateIP, pr.OnlyPrivateIP)
+		}
+		if pr.WithColor != c.expected.WithColor {
+			t.Errorf("expected: %#v, but actual: %#v", c.expected.WithColor, pr.WithColor)
+		}
+		if c.w == nil {
+			if _, ok := pr.Writer.(*tabwriter.Writer); !ok {
+				t.Errorf("expected: *tabwriter.Writer, but actual: %#v", pr.Writer)
+			}
+		} else {
+			if pr.Writer != c.expected.Writer {
+				t.Errorf("expected: %#v, but actual: %#v", c.expected.Writer, pr.Writer)
+			}
 		}
 	}
 }
 
 func TestPrintAll(t *testing.T) {
-	client := &awsec2.Client{
-		EC2API:    &mockEC2API{},
-		StateName: "running",
-	}
-
 	tmp, err := ioutil.TempFile("", "test_lsec2_printer")
 	if err != nil {
 		t.Errorf("failed to ioutil.TempFile. err: %#v", err)
 	}
 	defer os.Remove(tmp.Name())
 
+	client := &awsec2.Client{
+		EC2API:    &mockEC2API{},
+		StateName: "running",
+	}
 	cases := []struct {
 		pr *Printer
 	}{
@@ -135,9 +167,7 @@ func TestPrintAll(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		err := c.pr.PrintAll(client)
-
-		if err != nil {
+		if err := c.pr.PrintAll(client); err != nil {
 			t.Errorf("error occured. err: %#v", err)
 		}
 	}
