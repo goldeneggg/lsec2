@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"os"
-
 	"github.com/urfave/cli"
 )
 
@@ -41,11 +39,6 @@ var (
 			Name:  "delimiter, d",
 			Usage: "column delemeter for printed informations",
 			Value: "\t",
-		},
-		cli.StringFlag{
-			Name:  "coldef",
-			Usage: "path of coldef.yml",
-			Value: os.Getenv("HOME") + string(os.PathSeparator) + ".lsec2" + string(os.PathSeparator) + "coldef.yml",
 		},
 	}
 )

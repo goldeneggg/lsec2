@@ -2,6 +2,7 @@ package printer_test
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 	"testing"
 
@@ -78,10 +79,14 @@ func TestNewPrinter(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		printer := NewPrinter(c.maybeWriter)
+		pr := NewPrinter(c.maybeWriter)
 
-		if printer.Writer != c.exp.Writer {
-			t.Errorf("expected: %#v, but exp: %#v", c.exp.Writer, printer.Writer)
+		if pr.Delimiter != "\t" {
+			t.Errorf("expected: %#v, but exp: %#v", c.exp.Writer, pr.Writer)
+		}
+
+		if pr.Writer != c.exp.Writer {
+			t.Errorf("expected: %#v, but exp: %#v", c.exp.Writer, pr.Writer)
 		}
 	}
 }
@@ -94,18 +99,45 @@ func TestPrintAll(t *testing.T) {
 		Tags:      []string{"Role=roleA,roleB", "Service=serviceX"},
 	}
 
+	tmp, err := ioutil.TempFile("", "test_lsec2_printer")
+	if err != nil {
+		t.Errorf("failed to ioutil.TempFile. err: %#v", err)
+	}
+	defer os.Remove(tmp.Name())
+
 	cases := []struct {
-		printer *Printer
+		pr *Printer
 	}{
 		{
-			printer: &Printer{
-				Writer: os.Stdout,
+			pr: &Printer{
+				Writer:        os.Stdout,
+				PrintHeader:   true,
+				OnlyPrivateIP: false,
+				WithColor:     true,
+				Delimiter:     "\t",
+			},
+		},
+		{
+			pr: &Printer{
+				Writer:        tmp,
+				PrintHeader:   false,
+				OnlyPrivateIP: false,
+				WithColor:     false,
+				Delimiter:     ",",
+			},
+		},
+		{
+			pr: &Printer{
+				Writer:        tmp,
+				PrintHeader:   false,
+				OnlyPrivateIP: true,
+				WithColor:     false,
 			},
 		},
 	}
 
 	for _, c := range cases {
-		err := c.printer.PrintAll(client)
+		err := c.pr.PrintAll(client)
 
 		if err != nil {
 			t.Errorf("error occured. err: %#v", err)

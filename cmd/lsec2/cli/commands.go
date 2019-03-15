@@ -72,10 +72,7 @@ func newPrinter(c *cli.Context) *printer.Printer {
 		printer.WithColor = c.Bool("c")
 	}
 	if c.IsSet("d") {
-		printer.Delimeter = c.String("d")
-	}
-	if c.IsSet("coldef") {
-		printer.ColDef = c.String("coldef")
+		printer.Delimiter = c.String("d")
 	}
 
 	return printer

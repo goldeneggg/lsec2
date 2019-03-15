@@ -15,21 +15,23 @@ import (
 const (
 	defaultDelimiter = "\t"
 
-	tabWriterMinWidth = 0
-	tabWriterTabWidth = 4
-	tabWriterPadding  = 4
-	tabWriterPadChar  = ' '
-	tabWriterFlags    = 0
+	tabMinWidth = 0
+	tabTabWidth = 4
+	tabPadding  = 4
+	tabPadChar  = ' '
+	tabFlags    = 0
 )
 
 var (
 	defaultWriter = os.Stdout
 )
 
+/*
 type flushableWriter interface {
 	io.Writer
 	Flush() error
 }
+*/
 
 // Printer is options definition of print
 type Printer struct {
@@ -37,43 +39,42 @@ type Printer struct {
 	PrintHeader   bool
 	OnlyPrivateIP bool
 	WithColor     bool
-	Delimeter     string
-	ColDef        string
+	Delimiter     string
 }
 
 // NewPrinter returns a new Printer
 func NewPrinter(maybeWriter interface{}) *Printer {
-	printer := new(Printer)
+	pr := new(Printer)
 
-	printer.Delimeter = defaultDelimiter
+	pr.Delimiter = defaultDelimiter
 
 	if writer, ok := maybeWriter.(io.Writer); ok {
-		printer.Writer = writer
+		pr.Writer = writer
 	} else {
-		printer.Writer = defaultWriter
+		pr.Writer = defaultWriter
 	}
 
-	return printer
+	return pr
 }
 
 // PrintAll prints information all of aws ec2 instances
-func (printer *Printer) PrintAll(client *awsec2.Client) error {
+func (pr *Printer) PrintAll(client *awsec2.Client) error {
 	instances, err := client.EC2Instances()
 	if err != nil {
 		return fmt.Errorf("get EC2 Instances error: %v", err)
 	}
 
-	printer.wrapWriterIfDefault()
-	defer printer.flushIfFlushable()
+	pr.wrapWriterIfDefault()
+	defer pr.flushIfFlushable()
 
-	if printer.PrintHeader {
-		if err := printer.printHeader(); err != nil {
+	if pr.PrintHeader {
+		if err := pr.printHeader(); err != nil {
 			return fmt.Errorf("print header error: %v", err)
 		}
 	}
 
 	for _, inst := range instances {
-		if err := printer.printInstance(client, inst); err != nil {
+		if err := pr.printInstance(client, inst); err != nil {
 			return fmt.Errorf("print instance error: %v", err)
 		}
 	}
@@ -81,34 +82,33 @@ func (printer *Printer) PrintAll(client *awsec2.Client) error {
 	return nil
 }
 
-func (printer *Printer) wrapWriterIfDefault() {
-	if printer.Writer == defaultWriter {
-		if printer.Delimeter == defaultDelimiter {
-			printer.Writer = tabwriter.NewWriter(
-				printer.Writer,
-				tabWriterMinWidth,
-				tabWriterTabWidth,
-				tabWriterPadding,
-				tabWriterPadChar,
-				tabWriterFlags,
+func (pr *Printer) wrapWriterIfDefault() {
+	if pr.Writer == defaultWriter {
+		if pr.Delimiter == defaultDelimiter {
+			pr.Writer = tabwriter.NewWriter(
+				pr.Writer,
+				tabMinWidth,
+				tabTabWidth,
+				tabPadding,
+				tabPadChar,
+				tabFlags,
 			)
 		}
 	}
 }
 
-func (printer *Printer) flushIfFlushable() {
-	// FIXME:
-	// printer.Writer.(interface{Flush() error}) とも書けそう。どちらがパフォーマンスが良いか？
-	if fw, ok := printer.Writer.(flushableWriter); ok {
+func (pr *Printer) flushIfFlushable() {
+	//if fw, ok := pr.Writer.(flushableWriter); ok {
+	if fw, ok := pr.Writer.(interface{ Flush() error }); ok {
 		fw.Flush()
 	}
 }
 
-func (printer *Printer) printHeader() error {
-	return printer.printArray(NewInstanceInfo(nil).Headers())
+func (pr *Printer) printHeader() error {
+	return pr.printArray(NewInstanceInfo(nil).Headers())
 }
 
-func (printer *Printer) printInstance(client *awsec2.Client, inst *ec2.Instance) error {
+func (pr *Printer) printInstance(client *awsec2.Client, inst *ec2.Instance) error {
 	var (
 		ii  *InstanceInfo
 		err error
@@ -116,18 +116,18 @@ func (printer *Printer) printInstance(client *awsec2.Client, inst *ec2.Instance)
 
 	ii = NewInstanceInfo(inst)
 	if len(client.StateName) == 0 || client.StateName == ii.StateName {
-		if printer.OnlyPrivateIP {
-			err = printer.printArray([]string{ii.PrivateIPAddress})
+		if pr.OnlyPrivateIP {
+			err = pr.printArray([]string{ii.PrivateIPAddress})
 		} else {
-			err = printer.printArray(ii.Values(printer.WithColor))
+			err = pr.printArray(ii.Values(pr.WithColor))
 		}
 	}
 
 	return err
 }
 
-func (printer *Printer) printArray(sArr []string) error {
-	if _, err := fmt.Fprintln(printer.Writer, strings.Join(sArr, printer.Delimeter)); err != nil {
+func (pr *Printer) printArray(sArr []string) error {
+	if _, err := fmt.Fprintln(pr.Writer, strings.Join(sArr, pr.Delimiter)); err != nil {
 		return err
 	}
 

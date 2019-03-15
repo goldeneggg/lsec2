@@ -31,7 +31,6 @@ func NewInstanceInfo(instance *ec2.Instance) *InstanceInfo {
 		return &InstanceInfo{}
 	}
 
-	// TODO: coldef.yml対応
 	i := &InstanceInfo{
 		InstanceID:       fetchItem(instance.InstanceId),
 		PrivateIPAddress: fetchItem(instance.PrivateIpAddress),
