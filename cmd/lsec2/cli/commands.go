@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/goldeneggg/lsec2/awsec2"
 	"github.com/goldeneggg/lsec2/cmd/lsec2/version"
@@ -40,7 +39,6 @@ func action(c *cli.Context) error {
 	}
 
 	if err := newPrinter(c).PrintAll(newClient(c)); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
 		return err
 	}
 
