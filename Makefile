@@ -31,7 +31,7 @@ ci-test:
 	@./scripts/ci-test.sh
 
 .PHONY: ci
-ci: ci-test
+ci: ci-test validate
 
 .PHONY: prof
 prof:
