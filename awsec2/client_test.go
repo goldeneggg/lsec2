@@ -201,5 +201,23 @@ func TestEC2Instances(t *testing.T) {
 		if len(c.expected) != len(insts) {
 			t.Errorf("not same instances length. expected: %#v, but actual: %#v", len(c.expected), len(insts))
 		}
+
+		for i, inst := range insts {
+			if inst.InstanceId != c.expected[i].InstanceId {
+				t.Errorf("expected: %#v, but actual: %#v", c.expected[i].InstanceId, inst.InstanceId)
+			}
+			if inst.PrivateIpAddress != c.expected[i].PrivateIpAddress {
+				t.Errorf("expected: %#v, but actual: %#v", c.expected[i].PrivateIpAddress, inst.PrivateIpAddress)
+			}
+			if inst.PublicIpAddress != c.expected[i].PublicIpAddress {
+				t.Errorf("expected: %#v, but actual: %#v", c.expected[i].PublicIpAddress, inst.PublicIpAddress)
+			}
+			if inst.InstanceType != c.expected[i].InstanceType {
+				t.Errorf("expected: %#v, but actual: %#v", c.expected[i].InstanceType, inst.InstanceType)
+			}
+			if inst.State.Name != c.expected[i].State.Name {
+				t.Errorf("expected: %#v, but actual: %#v", c.expected[i].State.Name, inst.State.Name)
+			}
+		}
 	}
 }
