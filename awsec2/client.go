@@ -41,9 +41,9 @@ func NewClientWithEC2API(maybeEC2Client interface{}) (*Client, error) {
 	if ec2Client, ok := maybeEC2Client.(ec2iface.EC2API); ok {
 		client.EC2API = ec2Client
 		return client, nil
-	} else {
-		return nil, fmt.Errorf("maybeEC2Client %#v does not implement ec2.EC2API methods", maybeEC2Client)
 	}
+
+	return nil, fmt.Errorf("maybeEC2Client %#v does not implement ec2.EC2API methods", maybeEC2Client)
 }
 
 // EC2Instances gets filtered EC2 instances
