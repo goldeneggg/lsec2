@@ -55,7 +55,7 @@ ci-test:
 	@./scripts/ci-test.sh
 
 .PHONY: ci
-ci: ci-test validate
+ci: ci-test vet
 
 .PHONY: vendor
 vendor:
