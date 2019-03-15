@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
@@ -21,24 +22,28 @@ const (
 // Client is attributes definition for filtering ec2 instances
 type Client struct {
 	ec2iface.EC2API
-	Region    string
 	StateName string
 	Tags      []string
 }
 
 // NewClient returns a new DefaultClient
-func NewClient(region string, maybeEC2Client interface{}) *Client {
+func NewClient(region string, profile string) *Client {
 	client := new(Client)
+	client.EC2API = defaultEC2Client(region, profile)
 
-	client.Region = region
+	return client
+}
+
+// NewClientWithEC2API returns a new Client with assigned EC2API variable
+func NewClientWithEC2API(maybeEC2Client interface{}) (*Client, error) {
+	client := new(Client)
 
 	if ec2Client, ok := maybeEC2Client.(ec2iface.EC2API); ok {
 		client.EC2API = ec2Client
+		return client, nil
 	} else {
-		client.EC2API = defaultEC2Client(region)
+		return nil, fmt.Errorf("maybeEC2Client %#v does not implement ec2.EC2API methods", maybeEC2Client)
 	}
-
-	return client
 }
 
 // EC2Instances gets filtered EC2 instances
@@ -56,9 +61,16 @@ func (client *Client) EC2Instances() ([]*ec2.Instance, error) {
 	return res, nil
 }
 
-func defaultEC2Client(region string) ec2iface.EC2API {
-	config := &aws.Config{Region: aws.String(region)}
+func defaultEC2Client(region string, profile string) ec2iface.EC2API {
+	config := aws.NewConfig()
+	if region != "" {
+		config = config.WithRegion(region)
+	}
+	if profile != "" {
+		config = config.WithCredentials(credentials.NewSharedCredentials("", profile))
+	}
 	sess := session.Must(session.NewSession(config))
+
 	return ec2.New(sess)
 }
 

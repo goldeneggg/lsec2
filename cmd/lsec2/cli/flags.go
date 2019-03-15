@@ -40,5 +40,9 @@ var (
 			Usage: "column delemeter for printed informations",
 			Value: "\t",
 		},
+		cli.StringFlag{
+			Name:  "profile",
+			Usage: "AWS config profile name",
+		},
 	}
 )

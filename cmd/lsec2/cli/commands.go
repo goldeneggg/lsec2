@@ -48,7 +48,7 @@ func action(c *cli.Context) error {
 }
 
 func newClient(c *cli.Context) *awsec2.Client {
-	client := awsec2.NewClient(c.String("region"), nil)
+	client := awsec2.NewClient(c.String("region"), c.String("profile"))
 
 	client.Tags = c.Args()
 	if c.IsSet("s") {

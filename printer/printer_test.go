@@ -94,9 +94,7 @@ func TestNewPrinter(t *testing.T) {
 func TestPrintAll(t *testing.T) {
 	client := &awsec2.Client{
 		EC2API:    &mockEC2API{},
-		Region:    "ap-northeast-1",
 		StateName: "running",
-		Tags:      []string{"Role=roleA,roleB", "Service=serviceX"},
 	}
 
 	tmp, err := ioutil.TempFile("", "test_lsec2_printer")
