@@ -53,21 +53,15 @@ Download from [latest release](https://github.com/goldeneggg/lsec2/releases/late
 
 ## Configuration
 
-### Set environment variables
+### Create `~/.aws/credentials` file
+__If you have already installed [aws\-cli](https://github.com/aws/aws-cli), I recommend setting up by `aws configure` command.__
 
-2 variables are required
+Write your credential information in `~/.aws/credentials` file.
 
-```sh
-$ export AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY_ID
-$ export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_ACCESS_KEY
-```
-
-### Or create `~/.aws/credentials` file
-Write your credential information in `~/.aws/credentials` file
-
-* Write a `[default]` section
-* Write `aws_access_key_id` in `[default]` section
-* Write `aws_secret_access_key` in `[default]` section
+* Write a section
+  * Default is `[default]`. It's known as "Profile".
+* Write `aws_access_key_id` in your section
+* Write `aws_secret_access_key` in your section
 
 ```ini
 [default]
@@ -76,6 +70,32 @@ aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
 ```
 
 More information: [session \- Amazon Web Services \- Go SDK](http://docs.aws.amazon.com/sdk-for-go/api/aws/session/)
+
+### Or Set environment variables
+
+2 variables are required
+
+```sh
+$ export AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY_ID
+$ export AWS_SECRET_ACCESS_KEY=YOUR_SECRET_ACCESS_KEY
+```
+
+### Change runtime profile
+Use `--profile` option
+
+```ini
+[default]
+aws_access_key_id = YOUR_ACCESS_KEY_ID
+aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
+
+[test]
+aws_access_key_id = YOUR_ACCESS_KEY_ID2
+aws_secret_access_key = YOUR_SECRET_ACCESS_KEY2
+```
+```sh
+$ lsec2  # use "default" profile
+$ lsec2 --profile test  # use "test" profile
+```
 
 ## Usage
 
@@ -105,12 +125,6 @@ You can use 3 patterns
 $ lsec2 --region ap-northeast-1
 ```
 
-* set `AWS_REGION` environment
-
-```sh
-$ export AWS_REGION=ap-northeast-1
-```
-
 * set `AWS_SDK_LOAD_CONFIG` environment, and write `region` key in `~/.aws/config` file
 
 ```sh
@@ -121,6 +135,12 @@ $ vi ~/.aws/config
 ```ini
 [default]
 region = ap-northeast-1
+```
+
+* set `AWS_REGION` environment
+
+```sh
+$ export AWS_REGION=ap-northeast-1
 ```
 
 Show more information from public AWS documents
@@ -158,6 +178,9 @@ $ lsec2 -p
 # print state with color
 # ("running" is green, "stopped" is red, and others are yellow)
 $ lsec2 -c
+
+# change column delimiter (default delimiter is TAB)
+$ lsec2 -d ,
 ```
 
 ## Tips
