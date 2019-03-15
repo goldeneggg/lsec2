@@ -27,12 +27,6 @@ install:
 test:
 	@go test -race -cover -v $(PACKAGES)
 
-ci-test:
-	@./scripts/ci-test.sh
-
-.PHONY: ci
-ci: ci-test validate
-
 .PHONY: prof
 prof:
 	@[ ! -d $(PROF_DIR) ] && mkdir $(PROF_DIR); go test -bench . -benchmem -cover -coverprofile $(PROF_DIR)/cover.out $(PACKAGES)
@@ -48,7 +42,7 @@ prof-full-cmd-cli:
 
 .PHONY: vet
 vet:
-	@go vet -n -x $(PACKAGES)
+	@go vet $(PACKAGES)
 
 .PHONY: lint
 lint:
@@ -56,6 +50,12 @@ lint:
 
 .PHONY: validate
 validate: vet lint
+
+ci-test:
+	@./scripts/ci-test.sh
+
+.PHONY: ci
+ci: ci-test validate
 
 .PHONY: vendor
 vendor:
