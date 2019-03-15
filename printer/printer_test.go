@@ -82,11 +82,11 @@ func TestNewPrinter(t *testing.T) {
 		pr := NewPrinter(c.maybeWriter)
 
 		if pr.Delimiter != "\t" {
-			t.Errorf("expected: %#v, but exp: %#v", c.exp.Writer, pr.Writer)
+			t.Errorf("expected: %#v, but actual: %#v", c.exp.Writer, pr.Writer)
 		}
 
 		if pr.Writer != c.exp.Writer {
-			t.Errorf("expected: %#v, but exp: %#v", c.exp.Writer, pr.Writer)
+			t.Errorf("expected: %#v, but actual: %#v", c.exp.Writer, pr.Writer)
 		}
 	}
 }
