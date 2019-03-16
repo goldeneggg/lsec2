@@ -1,15 +1,12 @@
-package awsec2_test
+package printer_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-)
 
-import (
-	. "github.com/goldeneggg/lsec2/awsec2"
+	. "github.com/goldeneggg/lsec2/printer"
 )
 
 const (
@@ -29,7 +26,7 @@ var (
 type infoTest struct {
 	in             *ec2.Instance
 	expected       *InstanceInfo
-	expectedParsed string
+	expectedValues []string
 }
 
 var infoTests = []infoTest{
@@ -66,17 +63,14 @@ var infoTests = []infoTest{
 				dummyTagKeys[1]: dummyTagValues[1],
 			},
 		},
-		expectedParsed: fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s=%s,%s=%s",
+		expectedValues: []string{
 			dummyInstanceID,
 			dummyPrivateIPAddress,
 			dummyPublicIPAddress,
 			dummyInstanceType,
 			dummyStateName,
-			dummyTagKeys[0],
-			dummyTagValues[0],
-			dummyTagKeys[1],
-			dummyTagValues[1],
-		),
+			dummyTagKeys[0] + "=" + dummyTagValues[0] + "," + dummyTagKeys[1] + "=" + dummyTagValues[1],
+		},
 	},
 	{
 		// public ip is nil
@@ -106,15 +100,14 @@ var infoTests = []infoTest{
 				dummyTagKeys[0]: dummyTagValues[0],
 			},
 		},
-		expectedParsed: fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s=%s",
+		expectedValues: []string{
 			dummyInstanceID,
 			dummyPrivateIPAddress,
-			"UNDEFINED",
+			dummyPublicIPAddress,
 			dummyInstanceType,
 			dummyStateName,
-			dummyTagKeys[0],
-			dummyTagValues[0],
-		),
+			dummyTagKeys[0] + "=" + dummyTagValues[0],
+		},
 	},
 	{
 		// tags are empty
@@ -137,24 +130,32 @@ var infoTests = []infoTest{
 			StateName:        dummyStateName,
 			Tags:             map[string]string{},
 		},
-		expectedParsed: fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t",
+		expectedValues: []string{
 			dummyInstanceID,
 			dummyPrivateIPAddress,
 			dummyPublicIPAddress,
 			dummyInstanceType,
 			dummyStateName,
-		),
+			"",
+		},
 	},
 }
 
 func TestNewInstanceInfo(t *testing.T) {
 	for _, it := range infoTests {
-		out, err := NewInstanceInfo(it.in)
-		if err != nil {
-			t.Errorf("occurred error: %v, in: %#v", err, it.in)
-		}
+		out := NewInstanceInfo(it.in)
+
 		if !compare(out, it.expected) {
 			t.Errorf("expected: %#v, but out: %#v", it.expected, out)
+		}
+	}
+}
+
+func TestValues(t *testing.T) {
+	for _, it := range infoTests {
+		out := it.expected.Values(false)
+		if len(out) != len(it.expectedValues) {
+			t.Errorf("expected: [%#v], but out: [%#v]", it.expectedValues, out)
 		}
 	}
 }
@@ -188,20 +189,4 @@ func compare(out *InstanceInfo, expected *InstanceInfo) bool {
 	}
 
 	return true
-}
-
-func TestNewInstanceInfoByNil(t *testing.T) {
-	out, err := NewInstanceInfo(nil)
-	if err == nil {
-		t.Errorf("not occurred expected error. out: %#v", out)
-	}
-}
-
-func TestParseRow(t *testing.T) {
-	for _, it := range infoTests {
-		out := it.expected.ParseRow(false)
-		if out != it.expectedParsed {
-			t.Errorf("expected: [%s], but out: [%s]", it.expectedParsed, out)
-		}
-	}
 }

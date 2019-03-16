@@ -5,81 +5,95 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
-// Client is options definition of print
-// client attributes
+const (
+	tagFilterPrefix   = "tag:"
+	tagPairSeparator  = "="
+	tagValueSeparator = ","
+
+	defaultTagValuesCap = 3
+)
+
+// Client is attributes definition for filtering ec2 instances
 type Client struct {
-	PrintHeader   bool
-	OnlyPrivateIP bool
-	Region        string
-	Tags          []string
-	WithColor     bool
-	StateName     string
+	ec2iface.EC2API
+	StateName string
+	Tags      []string
 }
 
-// Print is print method for aws ec2 instances
-// print information of aws ec2 instances
-func (client *Client) Print() error {
-	infos, err := client.buildInfos()
-	if err != nil {
-		return fmt.Errorf("buildInfos error: %v", err)
-	}
-
-	client.printInfos(infos)
-
-	return nil
+// NewClient returns a new DefaultClient
+func NewClient(region, state, profile string, tags []string) (*Client, error) {
+	return NewClientWithEC2API(region, state, profile, tags, nil)
 }
 
-func (client *Client) buildInfos() ([]*InstanceInfo, error) {
-	sess, err := session.NewSession(&aws.Config{Region: aws.String(client.Region)})
-	if err != nil {
-		return nil, fmt.Errorf("aws new session error: %v", err)
+// NewClientWithEC2API returns a new Client with assigned EC2API variable
+func NewClientWithEC2API(region, state, profile string, tags []string, c interface{}) (*Client, error) {
+	client := new(Client)
+
+	client.StateName = state
+	client.Tags = tags
+
+	if c != nil {
+		if ec2, ok := c.(ec2iface.EC2API); ok {
+			client.EC2API = ec2
+		} else {
+			return nil, fmt.Errorf("arg %#v does not implement ec2.EC2API methods", c)
+		}
+	} else {
+		client.EC2API = defaultEC2Client(region, profile)
 	}
 
-	svc := ec2.New(sess)
+	return client, nil
+}
 
-	output, err := svc.DescribeInstances(client.filterParams())
+// EC2Instances gets filtered EC2 instances
+func (client *Client) EC2Instances() ([]*ec2.Instance, error) {
+	output, err := client.EC2API.DescribeInstances(client.buildFilter())
 	if err != nil {
 		return nil, fmt.Errorf("aws describe instances error: %v", err)
 	}
 
-	var infos []*InstanceInfo
-
-	for _, reservation := range output.Reservations {
-		for _, instance := range reservation.Instances {
-			info, err := NewInstanceInfo(instance)
-			if err != nil {
-				return nil, err
-			}
-			infos = append(infos, info)
-		}
+	var res []*ec2.Instance
+	for _, r := range output.Reservations {
+		res = append(res, r.Instances...)
 	}
 
-	return infos, nil
+	return res, nil
 }
 
-func (client *Client) filterParams() *ec2.DescribeInstancesInput {
+func defaultEC2Client(region string, profile string) ec2iface.EC2API {
+	config := aws.NewConfig()
+	if region != "" {
+		config = config.WithRegion(region)
+	}
+	if profile != "" {
+		config = config.WithCredentials(credentials.NewSharedCredentials("", profile))
+	}
+	sess := session.Must(session.NewSession(config))
+
+	return ec2.New(sess)
+}
+
+func (client *Client) buildFilter() *ec2.DescribeInstancesInput {
 	var filters []*ec2.Filter
 
 	// client.tags is separated key-value pair by "=", and values are separated by ","(comma)
 	// ex. "Name=Value"
 	// ex. "Name=Value1,Value2"
 	for _, tag := range client.Tags {
-		tagNameValue := strings.Split(tag, tagPairSeparator)
-		name := aws.String(tagFilterPrefix + tagNameValue[0])
-		values := make([]*string, 0, 3)
-		for _, value := range strings.Split(tagNameValue[1], tagValueSeparator) {
-			values = append(values, aws.String(value))
+		kv := strings.Split(tag, tagPairSeparator)
+		name := aws.String(tagFilterPrefix + kv[0])
+		values := make([]*string, 0, defaultTagValuesCap)
+		for _, v := range strings.Split(kv[1], tagValueSeparator) {
+			values = append(values, aws.String(v))
 		}
 
-		tagFilter := &ec2.Filter{
-			Name:   name,
-			Values: values,
-		}
-		filters = append(filters, tagFilter)
+		filters = append(filters, &ec2.Filter{Name: name, Values: values})
 	}
 
 	if len(filters) == 0 {
@@ -87,20 +101,4 @@ func (client *Client) filterParams() *ec2.DescribeInstancesInput {
 	}
 
 	return &ec2.DescribeInstancesInput{Filters: filters}
-}
-
-func (client *Client) printInfos(infos []*InstanceInfo) {
-	if client.PrintHeader {
-		infos[0].printHeader()
-	}
-
-	for _, info := range infos {
-		if len(client.StateName) == 0 || client.StateName == info.StateName {
-			if client.OnlyPrivateIP {
-				fmt.Printf("%s\n", info.PrivateIPAddress)
-			} else {
-				info.printRow(client.WithColor)
-			}
-		}
-	}
 }

@@ -8,18 +8,29 @@ before:
 builds:
 - env:
   - CGO_ENABLED=0
+  - GO111MODULE=on
+  main: ./cmd/lsec2/main.go
+  flags:
+    - -a
+    - -tags
+    - netgo
+    - -installsuffix
+    - netgo
+  ldflags:
+    - -w -s -extldflags "-static" -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildDate={{.Date}} -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildCommit={{.ShortCommit}} -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.GoVersion={{.Env.GOVERSION}}
   goos:
-    - darwin
     - linux
-    - windows
     - freebsd
+    - darwin
+    - windows
   goarch:
-    - '386'
     - amd64
+    - 386
   ignore:
     - goos: darwin
       goarch: 386
-
+    - goos: windows
+      goarch: 386
 archive:
   format_overrides:
     - goos: windows
