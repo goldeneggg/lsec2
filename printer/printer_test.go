@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 
 	"github.com/goldeneggg/lsec2/awsec2"
+	"github.com/goldeneggg/lsec2/coldef"
 	. "github.com/goldeneggg/lsec2/printer"
 )
 
@@ -59,11 +60,21 @@ func (mock *mockEC2API) DescribeInstances(input *ec2.DescribeInstancesInput) (*e
 
 func TestNewPrinter(t *testing.T) {
 	dummyFile := os.NewFile(uintptr(3), "printer_test.go.out")
+	d, err := coldef.Unmarshal([]byte(coldef.DefaultYAML))
+	if err != nil {
+		t.Errorf("failed to coldef.Unmarshal. err: %#v", err)
+	}
+	dummyColDef, err := coldef.NewColDef(d)
+	if err != nil {
+		t.Errorf("failed to coldef.NewColDef. err: %#v", err)
+	}
+
 	cases := []struct {
 		delim     string
 		header    bool
 		onlyPvtIP bool
 		withColor bool
+		cd        *coldef.ColDef
 		w         io.Writer
 		expected  *Printer
 	}{
@@ -72,12 +83,14 @@ func TestNewPrinter(t *testing.T) {
 			header:    true,
 			onlyPvtIP: false,
 			withColor: true,
+			cd:        nil,
 			w:         nil,
 			expected: &Printer{
 				Delimiter:     "\t",
 				PrintHeader:   true,
 				OnlyPrivateIP: false,
 				WithColor:     true,
+				ColDef:        nil,
 			},
 		},
 		{
@@ -85,19 +98,21 @@ func TestNewPrinter(t *testing.T) {
 			header:    false,
 			onlyPvtIP: true,
 			withColor: false,
+			cd:        dummyColDef,
 			w:         dummyFile,
 			expected: &Printer{
-				Writer:        dummyFile,
 				Delimiter:     ",",
 				PrintHeader:   false,
 				OnlyPrivateIP: true,
 				WithColor:     false,
+				ColDef:        dummyColDef,
+				Writer:        dummyFile,
 			},
 		},
 	}
 
 	for _, c := range cases {
-		pr := NewPrinter(c.delim, c.header, c.onlyPvtIP, c.withColor, c.w)
+		pr := NewPrinter(c.delim, c.header, c.onlyPvtIP, c.withColor, c.cd, c.w)
 
 		if pr.Delimiter != c.expected.Delimiter {
 			t.Errorf("expected: %#v, but actual: %#v", c.expected.Delimiter, pr.Delimiter)
@@ -110,6 +125,9 @@ func TestNewPrinter(t *testing.T) {
 		}
 		if pr.WithColor != c.expected.WithColor {
 			t.Errorf("expected: %#v, but actual: %#v", c.expected.WithColor, pr.WithColor)
+		}
+		if pr.ColDef != c.expected.ColDef {
+			t.Errorf("expected: %#v, but actual: %#v", c.expected.ColDef, pr.ColDef)
 		}
 		if c.w == nil {
 			if file, ok := pr.Writer.(*os.File); ok {

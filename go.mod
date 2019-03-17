@@ -10,4 +10,5 @@ require (
 	github.com/urfave/cli v1.20.0
 	golang.org/x/net v0.0.0-20190313220215-9f648a60d977 // indirect
 	golang.org/x/sys v0.0.0-20190312061237-fead79001313 // indirect
+	gopkg.in/yaml.v2 v2.2.2
 )

@@ -20,6 +20,9 @@ var (
 	// command line options for printing informations
 	printFlags = []cli.Flag{
 		cli.BoolFlag{
+			Name: "hoge",
+		},
+		cli.BoolFlag{
 			Name:  "show-build",
 			Usage: "show build info",
 		},
@@ -43,6 +46,10 @@ var (
 		cli.StringFlag{
 			Name:  "profile",
 			Usage: "AWS config profile name",
+		},
+		cli.BoolFlag{
+			Name:  "coldef",
+			Usage: "use $HOME/.lsec2/coldef.yml for column setting",
 		},
 	}
 )

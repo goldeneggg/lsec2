@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 
 	"github.com/goldeneggg/lsec2/awsec2"
+	"github.com/goldeneggg/lsec2/coldef"
 )
 
 const (
@@ -24,15 +25,16 @@ type flushableWriter interface {
 
 // Printer is options definition of print
 type Printer struct {
-	io.Writer
 	Delimiter     string
 	PrintHeader   bool
 	OnlyPrivateIP bool
 	WithColor     bool
+	*coldef.ColDef
+	io.Writer
 }
 
 // NewPrinter returns a new Printer
-func NewPrinter(delim string, header, onlyPvtIP, withColor bool, w interface{}) *Printer {
+func NewPrinter(delim string, header, onlyPvtIP, withColor bool, cd *coldef.ColDef, w interface{}) *Printer {
 	pr := new(Printer)
 
 	if delim == "" {
@@ -42,6 +44,7 @@ func NewPrinter(delim string, header, onlyPvtIP, withColor bool, w interface{}) 
 	pr.PrintHeader = header
 	pr.OnlyPrivateIP = onlyPvtIP
 	pr.WithColor = withColor
+	pr.ColDef = cd
 
 	if writer, ok := w.(io.Writer); ok {
 		pr.Writer = writer

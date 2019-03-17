@@ -5,6 +5,7 @@ import (
 
 	"github.com/goldeneggg/lsec2/awsec2"
 	"github.com/goldeneggg/lsec2/cmd/lsec2/version"
+	"github.com/goldeneggg/lsec2/coldef"
 	"github.com/goldeneggg/lsec2/printer"
 	"github.com/urfave/cli"
 )
@@ -33,12 +34,22 @@ func Run(args []string) error {
 }
 
 func action(c *cli.Context) error {
+	if c.IsSet("hoge") {
+		coldef.Hoge()
+		return nil
+	}
+
 	if c.IsSet("show-build") {
 		showBuildInfo(c)
 		return nil
 	}
 
-	pr := newPrinter(c)
+	cd, err := newColDef(c)
+	if err != nil {
+		return err
+	}
+
+	pr := newPrinter(c, cd)
 	client, err := newClient(c)
 	if err != nil {
 		return err
@@ -51,8 +62,21 @@ func action(c *cli.Context) error {
 	return nil
 }
 
-func newPrinter(c *cli.Context) *printer.Printer {
-	return printer.NewPrinter(c.String("d"), c.Bool("H"), c.Bool("p"), c.Bool("c"), nil)
+func newColDef(c *cli.Context) (*coldef.ColDef, error) {
+	if !c.IsSet("coldef") {
+		return nil, nil
+	}
+
+	d, err := coldef.Read(coldef.DefaultPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return coldef.NewColDef(d)
+}
+
+func newPrinter(c *cli.Context, cd *coldef.ColDef) *printer.Printer {
+	return printer.NewPrinter(c.String("d"), c.Bool("H"), c.Bool("p"), c.Bool("c"), cd, nil)
 }
 
 func newClient(c *cli.Context) (*awsec2.Client, error) {
