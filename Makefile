@@ -1,8 +1,9 @@
 NAME := lsec2
-SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor')
-PACKAGES := $(shell ./scripts/_packages.sh)
 PROF_DIR := ./.profile
-GOVERSION := $(shell go version | awk '{print $$3;}')
+
+SRCS = $(shell find . -type f -name '*.go' | \grep -v 'vendor')
+PACKAGES = $(shell ./scripts/_packages.sh)
+GOVERSION = $(shell go version | awk '{print $$3;}')
 
 .DEFAULT_GOAL := bin/$(NAME)
 
