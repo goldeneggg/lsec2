@@ -1,9 +1,9 @@
 NAME := lsec2
 PROF_DIR := ./.profile
 
-SRCS = $(shell find . -type f -name '*.go' | \grep -v 'vendor')
-PACKAGES = $(shell ./scripts/_packages.sh)
-GOVERSION = $(shell go version | awk '{print $$3;}')
+SRCS = $(eval SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor'))$(SRCS)
+PACKAGES = $(eval PACKAGES := $(shell ./scripts/_packages.sh))$(PACKAGES)
+GOVERSION = $(eval GOVERSION := $(shell go version | awk '{print $$3;}'))$(GOVERSION)
 
 .DEFAULT_GOAL := bin/$(NAME)
 
@@ -70,6 +70,7 @@ vendor-build:
 lint-travis:
 	@travis lint --org --debug .travis.yml
 
+# Note: require "brew install rpmbuild" on OS X
 test-goreleaser:
 	@GOVERSION=$(GOVERSION) goreleaser release --snapshot --skip-publish --rm-dist
 
@@ -83,3 +84,6 @@ clean:
 	@rm -fr dist pkg
 	@find . -name '*.test' -delete
 	@rm -fr $(PROF_DIR)
+
+mod-clean:
+	@go clean -modcache
