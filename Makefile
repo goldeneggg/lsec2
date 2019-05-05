@@ -1,9 +1,13 @@
 NAME := lsec2
 PROF_DIR := ./.profile
 
-SRCS = $(eval SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor'))$(SRCS)
-PACKAGES = $(eval PACKAGES := $(shell ./scripts/_packages.sh))$(PACKAGES)
-GOVERSION = $(eval GOVERSION := $(shell go version | awk '{print $$3;}'))$(GOVERSION)
+# Note: NOT use lazy initializer because make is unstable.
+#SRCS = $(eval SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor'))$(SRCS)
+#PACKAGES = $(eval PACKAGES := $(shell ./scripts/_packages.sh))$(PACKAGES)
+#GOVERSION = $(eval GOVERSION := $(shell go version | awk '{print $$3;}'))$(GOVERSION)
+SRCS = $(shell find . -type f -name '*.go' | \grep -v 'vendor')
+PACKAGES = $(shell ./scripts/_packages.sh)
+GOVERSION = $(shell go version | awk '{print $$3;}')
 
 .DEFAULT_GOAL := bin/$(NAME)
 
