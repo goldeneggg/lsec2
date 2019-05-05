@@ -1,5 +1,6 @@
 NAME := lsec2
 PROF_DIR := ./.profile
+AWS_SDK_GO_PKG := github.com/aws/aws-sdk-go
 
 # Note: NOT use lazy initializer because make is unstable.
 #SRCS = $(eval SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor'))$(SRCS)
@@ -20,6 +21,12 @@ mod-dl:
 
 mod-tidy:
 	@GO111MODULE=on go mod tidy
+
+list-versions-aws-sdk-go:
+	@go list -u -m -versions $(AWS_SDK_GO_PKG) | tr ' ' '\n'
+
+update-aws-sdk-go:
+	@read -p 'Input Module Query(e.g. "<v1.20")?: ' query; echo query=$$query; GO111MODULE=on go get $(AWS_SDK_GO_PKG)@''$$query''
 
 bin/$(NAME): $(SRCS)
 	@./scripts/build.sh bin/$(NAME)
