@@ -7,8 +7,8 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	exp := "0.2.7"
-	if VERSION != "0.2.7" {
+	exp := "0.2.8"
+	if VERSION != "0.2.8" {
 		t.Errorf("expected: %#v, but actual: %#v", exp, VERSION)
 	}
 }

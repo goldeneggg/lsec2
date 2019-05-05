@@ -1,7 +1,7 @@
 module github.com/goldeneggg/lsec2
 
 require (
-	github.com/aws/aws-sdk-go v1.17.14
+	github.com/aws/aws-sdk-go v1.19.24
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/mattn/go-colorable v0.1.1 // indirect

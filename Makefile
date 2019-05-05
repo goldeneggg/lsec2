@@ -1,8 +1,14 @@
 NAME := lsec2
-SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor')
-PACKAGES := $(shell ./scripts/_packages.sh)
 PROF_DIR := ./.profile
-GOVERSION := $(shell go version | awk '{print $$3;}')
+AWS_SDK_GO_PKG := github.com/aws/aws-sdk-go
+
+# Note: NOT use lazy initializer because make is unstable.
+#SRCS = $(eval SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor'))$(SRCS)
+#PACKAGES = $(eval PACKAGES := $(shell ./scripts/_packages.sh))$(PACKAGES)
+#GOVERSION = $(eval GOVERSION := $(shell go version | awk '{print $$3;}'))$(GOVERSION)
+SRCS = $(shell find . -type f -name '*.go' | \grep -v 'vendor')
+PACKAGES = $(shell ./scripts/_packages.sh)
+GOVERSION = $(shell go version | awk '{print $$3;}')
 
 .DEFAULT_GOAL := bin/$(NAME)
 
@@ -15,6 +21,12 @@ mod-dl:
 
 mod-tidy:
 	@GO111MODULE=on go mod tidy
+
+list-versions-aws-sdk-go:
+	@go list -u -m -versions $(AWS_SDK_GO_PKG) | tr ' ' '\n'
+
+update-aws-sdk-go:
+	@read -p 'Input Module Query(e.g. "<v1.20")?: ' query; echo query=$$query; GO111MODULE=on go get $(AWS_SDK_GO_PKG)@''$$query''
 
 bin/$(NAME): $(SRCS)
 	@./scripts/build.sh bin/$(NAME)
@@ -69,6 +81,7 @@ vendor-build:
 lint-travis:
 	@travis lint --org --debug .travis.yml
 
+# Note: require "brew install rpmbuild" on OS X
 test-goreleaser:
 	@GOVERSION=$(GOVERSION) goreleaser release --snapshot --skip-publish --rm-dist
 
@@ -82,3 +95,6 @@ clean:
 	@rm -fr dist pkg
 	@find . -name '*.test' -delete
 	@rm -fr $(PROF_DIR)
+
+mod-clean:
+	@go clean -modcache
