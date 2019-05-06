@@ -1,6 +1,7 @@
 NAME := lsec2
-PROF_DIR := ./.profile
-AWS_SDK_GO_PKG := github.com/aws/aws-sdk-go
+ROF_DIR := ./.profile
+PKG_AWS_SDK_GO := github.com/aws/aws-sdk-go
+PKG_URFAVE_CLI := github.com/urfave/cli
 
 # Note: NOT use lazy initializer because make is unstable.
 #SRCS = $(eval SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor'))$(SRCS)
@@ -15,18 +16,6 @@ GOVERSION = $(shell go version | awk '{print $$3;}')
 .PHONY: version
 version:
 	@echo $(shell ./scripts/_version.sh)
-
-mod-dl:
-	@GO111MODULE=on go mod download
-
-mod-tidy:
-	@GO111MODULE=on go mod tidy
-
-list-versions-aws-sdk-go:
-	@go list -u -m -versions $(AWS_SDK_GO_PKG) | tr ' ' '\n'
-
-update-aws-sdk-go:
-	@read -p 'Input Module Query(e.g. "<v1.20")?: ' query; echo query=$$query; GO111MODULE=on go get $(AWS_SDK_GO_PKG)@''$$query''
 
 bin/$(NAME): $(SRCS)
 	@./scripts/build.sh bin/$(NAME)
@@ -79,16 +68,25 @@ chk-latest-all:
 	@$(call chk_latest,all)
 
 chk-latest-aws-sdk-go:
-	@$(call chk_latest,github.com/aws/aws-sdk-go)
+	@$(call chk_latest,$(PKG_AWS_SDK_GO))
 
 chk-versions-aws-sdk-go:
-	@$(call chk_versions,github.com/aws/aws-sdk-go)
+	@$(call chk_versions,$(PKG_AWS_SDK_GO))
 
 chk-latest-urfave-cli:
-	@$(call chk_latest,github.com/urfave/cli)
+	@$(call chk_latest,$(PKG_URFAVE_CLI))
 
 chk-versions-urfave-cli:
-	@$(call chk_versions,github.com/urfave/cli)
+	@$(call chk_versions,$(PKG_URFAVE_CLI))
+
+update-pkg = read -p 'Input Module Query(e.g. "<v1.20")?: ' query; echo query=$$query; GO111MODULE=on go get $(PKG_AWS_SDK_GO)@''$$query''
+
+#@read -p 'Input Module Query(e.g. "<v1.20")?: ' query; echo query=$$query; GO111MODULE=on go get $(PKG_AWS_SDK_GO)@''$$query''
+update-aws-sdk-go:
+	@$(call update-pkg,$(PKG_AWS_SDK_GO))
+
+update-urfave-cli:
+	@$(call update-pkg,$(PKG_URFAVE_CLI))
 
 mod-dl:
 	@GO111MODULE=on go mod download
