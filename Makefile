@@ -2,6 +2,8 @@ NAME := lsec2
 ROF_DIR := ./.profile
 PKG_AWS_SDK_GO := github.com/aws/aws-sdk-go
 PKG_URFAVE_CLI := github.com/urfave/cli
+MOD_QUERY_AWS_SDK_GO := <v1.20
+MOD_QUERY_URFAVE_CLI := <v1.21
 
 # Note: NOT use lazy initializer because make is unstable.
 #SRCS = $(eval SRCS := $(shell find . -type f -name '*.go' | \grep -v 'vendor'))$(SRCS)
@@ -62,7 +64,6 @@ lint:
 validate: vet lint
 
 chk_latest = go list -u -m $1
-chk_versions = go list -u -m -versions $1 | tr ' ' '\n'
 
 chk-latest-all:
 	@$(call chk_latest,all)
@@ -70,23 +71,26 @@ chk-latest-all:
 chk-latest-aws-sdk-go:
 	@$(call chk_latest,$(PKG_AWS_SDK_GO))
 
-chk-versions-aws-sdk-go:
-	@$(call chk_versions,$(PKG_AWS_SDK_GO))
-
 chk-latest-urfave-cli:
 	@$(call chk_latest,$(PKG_URFAVE_CLI))
+
+chk_versions = go list -u -m -versions $1 | tr ' ' '\n'
+
+chk-versions-aws-sdk-go:
+	@$(call chk_versions,$(PKG_AWS_SDK_GO))
 
 chk-versions-urfave-cli:
 	@$(call chk_versions,$(PKG_URFAVE_CLI))
 
-update-pkg = read -p 'Input Module Query(e.g. "<v1.20")?: ' query; echo query=$$query; GO111MODULE=on go get $(PKG_AWS_SDK_GO)@''$$query''
+update-pkg = echo query="$2"; GO111MODULE=on go get $1@'$2'
+update-pkg-manualy = read -p 'Input Module Query(e.g. "<v1.20")?: ' query; echo query=$$query; GO111MODULE=on go get $1@''$$query''
 
 #@read -p 'Input Module Query(e.g. "<v1.20")?: ' query; echo query=$$query; GO111MODULE=on go get $(PKG_AWS_SDK_GO)@''$$query''
 update-aws-sdk-go:
-	@$(call update-pkg,$(PKG_AWS_SDK_GO))
+	@$(call update-pkg,$(PKG_AWS_SDK_GO),$(MOD_QUERY_AWS_SDK_GO))
 
 update-urfave-cli:
-	@$(call update-pkg,$(PKG_URFAVE_CLI))
+	@$(call update-pkg,$(PKG_URFAVE_CLI),$(MOD_QUERY_URFAVE_CLI))
 
 mod-dl:
 	@GO111MODULE=on go mod download
