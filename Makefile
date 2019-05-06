@@ -31,6 +31,13 @@ update-aws-sdk-go:
 bin/$(NAME): $(SRCS)
 	@./scripts/build.sh bin/$(NAME)
 
+.PHONY: rm
+rm:
+	@rm bin/$(NAME)
+
+.PHONY: rebuild
+rebuild: rm bin/$(NAME)
+
 .PHONY: install
 install:
 	@./scripts/install.sh
@@ -64,6 +71,30 @@ lint:
 
 .PHONY: validate
 validate: vet lint
+
+chk_latest = go list -u -m $1
+chk_versions = go list -u -m -versions $1 | tr ' ' '\n'
+
+chk-latest-all:
+	@$(call chk_latest,all)
+
+chk-latest-aws-sdk-go:
+	@$(call chk_latest,github.com/aws/aws-sdk-go)
+
+chk-versions-aws-sdk-go:
+	@$(call chk_versions,github.com/aws/aws-sdk-go)
+
+chk-latest-urfave-cli:
+	@$(call chk_latest,github.com/urfave/cli)
+
+chk-versions-urfave-cli:
+	@$(call chk_versions,github.com/urfave/cli)
+
+mod-dl:
+	@GO111MODULE=on go mod download
+
+mod-tidy:
+	@GO111MODULE=on go mod tidy
 
 ci-test:
 	@./scripts/ci-test.sh
