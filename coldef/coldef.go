@@ -40,7 +40,7 @@ type colDef struct {
 
 type Selected struct {
 	Name  string
-	Value []string
+	Value interface{}
 }
 
 type DefaultSelector struct {
@@ -76,56 +76,63 @@ func (ds *DefaultSelector) SelectInstanceInfo(instance *ec2.Instance) error {
 			return err
 		}
 
-		log.Printf("--- selected: %+v", sel)
+		log.Printf("selected: %+v", sel)
 		ds.Selection = append(ds.Selection, sel)
 	}
 
 	return nil
 }
 
-func (sel *Selected) setSelected(column interface{}, instValue reflect.Value) error {
-	indr := reflect.Indirect(instValue)
+func (sel *Selected) setSelected(column interface{}, instValue reflect.Value) (err error) {
+	instance := reflect.Indirect(instValue)
 
-	switch indr.Kind() {
+	switch instance.Kind() {
 	case reflect.Array, reflect.Slice:
-		log.Printf("FIXME: instance is array or slicei: %+v", indr)
+		for index := 0; index < instance.Len(); index++ {
+			err = sel.setSelected(column, instance.Index(index))
+			if err != nil {
+				return
+			}
+		}
 		// 何かのスライス型のValue、例えば []*ec2.Tags とか
 		// return sel.parseArray(column, indirected)
-		return nil
 	default:
 		switch typedColumn := column.(type) {
 		case string:
 			// e.g. "- InstanceId"
-			return sel.appendString(typedColumn, indr)
+			err = sel.processStringColumn(typedColumn, instance)
 		case map[interface{}]interface{}:
 			// e.g. "- State: Name"
-			var current string
-			var next interface{}
-			for c, n := range typedColumn {
-				current, _ = c.(string)
-				next = n
-				break
+			vals, isTags := typedColumn["Tags"]
+			if isTags {
+				aVals := vals.([]interface{})
+				cols := make([]string, len(aVals))
+				for i, v := range aVals {
+					cols[i] = v.(string)
+				}
+				err = sel.processTags(cols, instance)
+			} else {
+				err = sel.processMapColumn(typedColumn, instance)
 			}
-			sel.appendName(current)
-			return sel.setSelected(next, indr.FieldByName(current))
 		case []interface{}:
 			// e.g.
 			// "- Tags"
 			// "  - Key"
 			// "  - Value"
-			log.Printf("----- typedColumn is array: %+v", typedColumn)
-			/*
-				for _, v := range typedColumn {
-				return sel.setSelected(v, indr)
-			} */
-
-			return nil
+			log.Printf("@@@ array typedColumn: %+v, instance: %#v", typedColumn, instance)
+			for _, next := range typedColumn {
+				err = sel.setSelected(next, instance)
+				if err != nil {
+					return
+				}
+			}
 		default:
 			// FIXME
-			log.Printf("#### default c: %#v", typedColumn)
-			return nil
+			log.Printf("----- default typedColumn: %#v", typedColumn)
 		}
 	}
+
+	return
 }
 
 /*
@@ -141,18 +148,62 @@ func (sel *Selected) parseArray(columnIntf interface{}, value reflect.Value) err
 }
 */
 
-func (sel *Selected) appendString(typedColumn string, value reflect.Value) error {
+func (sel *Selected) processStringColumn(typedColumn string, value reflect.Value) error {
 	str, err := stringFieldValue(typedColumn, value)
 	if err != nil {
 		return err
 	}
 
-	sel.appendName(typedColumn)
-	sel.appendValue(str)
+	sel.buildName(typedColumn)
+	sel.setValue(str)
 	return nil
 }
 
-func (sel *Selected) appendName(s string) {
+func (sel *Selected) processMapColumn(typedColumn map[interface{}]interface{}, value reflect.Value) error {
+	// e.g. "- State: Name"
+	var current string
+	var next interface{}
+	for c, n := range typedColumn {
+		current, _ = c.(string)
+		next = n
+		break
+	}
+	log.Printf("------- map column current: %s", current)
+
+	sel.buildName(current)
+
+	return sel.setSelected(next, value.FieldByName(current))
+}
+
+func (sel *Selected) processTags(cols []string, value reflect.Value) error {
+	tags := value.FieldByName("Tags")
+
+	var tag reflect.Value
+	var k, v string
+	val := make(map[string]string)
+
+	for index := 0; index < tags.Len(); index++ {
+		tag = reflect.Indirect(tags.Index(index))
+		for i := 0; i < tag.NumField(); i++ {
+			switch tag.Field(i).Kind() {
+			case reflect.Ptr:
+				if i%2 == 0 {
+					v = tag.Field(i).Elem().String()
+				} else {
+					k = tag.Field(i).Elem().String()
+				}
+				val[k] = v
+			}
+		}
+	}
+
+	sel.buildName("Tags")
+	sel.setValue(val)
+
+	return nil
+}
+
+func (sel *Selected) buildName(s string) {
 	if sel.Name == "" {
 		sel.Name = s
 	} else {
@@ -160,8 +211,8 @@ func (sel *Selected) appendName(s string) {
 	}
 }
 
-func (sel *Selected) appendValue(v string) {
-	sel.Value = append(sel.Value, v)
+func (sel *Selected) setValue(v interface{}) {
+	sel.Value = v
 }
 
 func stringFieldValue(fieldName string, value reflect.Value) (s string, err error) {
@@ -173,10 +224,10 @@ func stringFieldValue(fieldName string, value reflect.Value) (s string, err erro
 	switch v.Kind() {
 	case reflect.String:
 		s = v.String()
-		log.Printf("----- string: %s", s)
+		log.Printf("----- string: %s, field: %s", s, fieldName)
 	case reflect.Int64:
 		s = strconv.FormatInt(v.Int(), 10)
-		log.Printf("----- int64: %s", s)
+		log.Printf("----- int64: %s, field: %s", s, fieldName)
 	case reflect.Invalid:
 		log.Printf("SKIP INVALID. field: %s, casted: %+v", fieldName, v)
 	default:
@@ -203,22 +254,20 @@ func Hoge() {
 		Code: aws.Int64(1234),
 		Name: aws.String("running"),
 	}
-	/*
-		instance.CapacityReservationId = aws.String("capacity-reservation-id")
-		instance.NetworkInterfaces = []*ec2.InstanceNetworkInterface{
-			{
-				Association: &ec2.InstanceNetworkInterfaceAssociation{PublicDnsName: aws.String("xyz-dns")},
-				Groups: []*ec2.GroupIdentifier{
-					{GroupId: aws.String("xxxgroup111")},
-					{GroupId: aws.String("xxxgroup222")},
-				},
+	instance.CapacityReservationId = aws.String("capacity-reservation-id")
+	instance.NetworkInterfaces = []*ec2.InstanceNetworkInterface{
+		{
+			Association: &ec2.InstanceNetworkInterfaceAssociation{PublicDnsName: aws.String("xyz-dns")},
+			Groups: []*ec2.GroupIdentifier{
+				{GroupId: aws.String("xxxgroup111")},
+				{GroupId: aws.String("xxxgroup222")},
 			},
-		}
-		instance.Tags = []*ec2.Tag{
-			{Key: aws.String("tag1"), Value: aws.String("value1")},
-			{Key: aws.String("tag2"), Value: aws.String("value2")},
-		}
-	*/
+		},
+	}
+	instance.Tags = []*ec2.Tag{
+		{Key: aws.String("tag1"), Value: aws.String("value1")},
+		{Key: aws.String("tag2"), Value: aws.String("value2")},
+	}
 
 	err = ds.SelectInstanceInfo(instance)
 	if err != nil {
