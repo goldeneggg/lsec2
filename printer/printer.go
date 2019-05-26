@@ -29,12 +29,12 @@ type Printer struct {
 	PrintHeader   bool
 	OnlyPrivateIP bool
 	WithColor     bool
-	*coldef.ColDef
+	coldef.Selector
 	io.Writer
 }
 
 // NewPrinter returns a new Printer
-func NewPrinter(delim string, header, onlyPvtIP, withColor bool, cd *coldef.ColDef, w interface{}) *Printer {
+func NewPrinter(delim string, header, onlyPvtIP, withColor bool, sel coldef.Selector, w interface{}) *Printer {
 	pr := new(Printer)
 
 	if delim == "" {
@@ -44,7 +44,7 @@ func NewPrinter(delim string, header, onlyPvtIP, withColor bool, cd *coldef.ColD
 	pr.PrintHeader = header
 	pr.OnlyPrivateIP = onlyPvtIP
 	pr.WithColor = withColor
-	pr.ColDef = cd
+	pr.Selector = sel
 
 	if writer, ok := w.(io.Writer); ok {
 		pr.Writer = writer

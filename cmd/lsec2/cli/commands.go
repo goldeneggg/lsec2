@@ -44,12 +44,12 @@ func action(c *cli.Context) error {
 		return nil
 	}
 
-	cd, err := newColDef(c)
+	sel, err := newSelector(c)
 	if err != nil {
 		return err
 	}
 
-	pr := newPrinter(c, cd)
+	pr := newPrinter(c, sel)
 	client, err := newClient(c)
 	if err != nil {
 		return err
@@ -62,21 +62,16 @@ func action(c *cli.Context) error {
 	return nil
 }
 
-func newColDef(c *cli.Context) (*coldef.ColDef, error) {
+func newSelector(c *cli.Context) (coldef.Selector, error) {
 	if !c.IsSet("coldef") {
 		return nil, nil
 	}
 
-	d, err := coldef.Read(coldef.DefaultPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return coldef.NewColDef(d)
+	return coldef.NewSelectorFromYAMLFile(coldef.DefaultDir)
 }
 
-func newPrinter(c *cli.Context, cd *coldef.ColDef) *printer.Printer {
-	return printer.NewPrinter(c.String("d"), c.Bool("H"), c.Bool("p"), c.Bool("c"), cd, nil)
+func newPrinter(c *cli.Context, sel coldef.Selector) *printer.Printer {
+	return printer.NewPrinter(c.String("d"), c.Bool("H"), c.Bool("p"), c.Bool("c"), sel, nil)
 }
 
 func newClient(c *cli.Context) (*awsec2.Client, error) {

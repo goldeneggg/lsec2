@@ -1,222 +1,227 @@
 package coldef
 
 import (
+	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
+	"path/filepath"
 	"reflect"
-	"strings"
+	"strconv"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"gopkg.in/yaml.v2"
+	"github.com/spf13/viper"
 )
 
 const (
-	yamlFile = "coldef.yml"
-)
-
-var (
-	DefaultPath = os.Getenv("HOME") + string(os.PathSeparator) + ".lsec2" + string(os.PathSeparator) + yamlFile
+	ColDefFileName = "coldef"
 
 	DefaultYAML = `
 - InstanceId
 - PrivateIpAddress
 - PublicIpAddress
 - InstanceType
-- State.Name
-- Tags
-`
-
-	hogeYAML = `
-- InstanceId
-- PrivateIpAddress
-- PublicIpAddress
-- InstanceType
-- State.Name
-- Licenses:
-  - LicenseConfigurationArn21
-    LicenseConfigurationArn22
+- State: Name
 - Tags
 `
 )
 
-// Read read a yaml file named by path argument
-func Read(path string) (unmarshals []interface{}, err error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return Unmarshal([]byte(DefaultYAML))
-	}
+var (
+	DefaultDir = filepath.Join("$HOME", ".lsec2")
+)
 
-	f, err := os.Open(path)
-	if err != nil {
-		return
-	}
-
-	d, err := ioutil.ReadAll(f)
-	if err != nil {
-		return
-	}
-
-	return Unmarshal(d)
+type Selector interface {
+	SelectInstanceInfo(*ec2.Instance) error
 }
 
-func Unmarshal(data []byte) (unmarshals []interface{}, err error) {
-	err = yaml.UnmarshalStrict(data, &unmarshals)
-
-	return
-}
-
-type ColDef struct {
+type colDef struct {
 	Columns []interface{}
 }
 
-func NewColDef(unmarshals []interface{}) (*ColDef, error) {
-	cd := &ColDef{Columns: make([]interface{}, 0, 10)}
+type Selected struct {
+	Name  string
+	Value []string
+}
 
-	for _, um := range unmarshals {
-		switch v := um.(type) {
+type DefaultSelector struct {
+	*colDef
+	Selection []*Selected
+}
+
+// NewSelectorFromYAMLFile read a yaml file named by dir argument
+func NewSelectorFromYAMLFile(dir string) (Selector, error) {
+	var cd colDef
+
+	viper.SetConfigName(ColDefFileName)
+	viper.SetConfigType("yml")
+	viper.AddConfigPath(dir)
+
+	if err := viper.ReadInConfig(); err != nil {
+		// if yaml not found, use default yaml definition
+		viper.ReadConfig(bytes.NewBuffer([]byte(DefaultYAML)))
+	}
+
+	err := viper.Unmarshal(&cd)
+	return &DefaultSelector{colDef: &cd}, err
+}
+
+func (ds *DefaultSelector) SelectInstanceInfo(instance *ec2.Instance) error {
+	instValue := reflect.ValueOf(instance)
+
+	for _, column := range ds.colDef.Columns {
+		log.Printf("--- column: %+v", column)
+		sel := &Selected{}
+		err := sel.setSelected(column, instValue)
+		if err != nil {
+			return err
+		}
+
+		log.Printf("--- selected: %+v", sel)
+		ds.Selection = append(ds.Selection, sel)
+	}
+
+	return nil
+}
+
+func (sel *Selected) setSelected(column interface{}, instValue reflect.Value) error {
+	indr := reflect.Indirect(instValue)
+
+	switch indr.Kind() {
+	case reflect.Array, reflect.Slice:
+		log.Printf("FIXME: instance is array or slicei: %+v", indr)
+		// 何かのスライス型のValue、例えば []*ec2.Tags とか
+		// return sel.parseArray(column, indirected)
+		return nil
+	default:
+		switch typedColumn := column.(type) {
 		case string:
-			cd.Columns = append(cd.Columns, newItem(v))
+			// e.g. "- InstanceId"
+			return sel.appendString(typedColumn, indr)
 		case map[interface{}]interface{}:
-			if ri, err := newRepeatedItem(v); err == nil {
-				cd.Columns = append(cd.Columns, ri)
-			} else {
-				return nil, err
+			// e.g. "- State: Name"
+			var current string
+			var next interface{}
+			for c, n := range typedColumn {
+				current, _ = c.(string)
+				next = n
+				break
 			}
+			sel.appendName(current)
+			return sel.setSelected(next, indr.FieldByName(current))
+		case []interface{}:
+			// e.g.
+			// "- Tags"
+			// "  - Key"
+			// "  - Value"
+			log.Printf("----- typedColumn is array: %+v", typedColumn)
+			/*
+				for _, v := range typedColumn {
+				return sel.setSelected(v, indr)
+			} */
+
+			return nil
 		default:
-			return nil, fmt.Errorf("%v is invalid type", um)
+			// FIXME
+			log.Printf("#### default c: %#v", typedColumn)
+			return nil
 		}
 	}
-
-	return cd, nil
 }
 
-type Item struct {
-	Receivers []string
-	Name      string
-}
+/*
+func (sel *Selected) parseArray(columnIntf interface{}, value reflect.Value) error {
+	log.Printf("## parseArray columnIntf: %+v, value: %+v", columnIntf, value)
 
-func newItem(s string) Item {
-	a := strings.Split(s, ".")
-	if len(a) == 0 {
-		return Item{Receivers: nil, Name: s}
-	}
-	return Item{Receivers: a[0 : len(a)-1], Name: a[len(a)-1]}
-}
-
-func (i Item) EmptyReceivers() bool {
-	return len(i.Receivers) == 0
-}
-
-type RepeatedItem struct {
-	Root  string
-	Items []Item
-}
-
-func newRepeatedItem(m map[interface{}]interface{}) (RepeatedItem, error) {
-	var ri RepeatedItem
-
-	if len(m) > 1 {
-		return ri, fmt.Errorf("%v is not a map of size one", m)
+	for index := 0; index < value.Len(); index++ {
+		log.Printf("## parseArray call parseObject: %+v, value: %+v", columnIntf, value.Index(index))
+		return sel.fromObject(columnIntf, value.Index(index))
 	}
 
-	var (
-		root  string
-		items []Item
-		ok    bool
-	)
+	return nil
+}
+*/
 
-	for key, value := range m {
-		root, ok = key.(string)
-		if !ok {
-			return ri, fmt.Errorf("key %v is not a string", key)
-		}
-
-		arrIntf, ok := value.([]interface{})
-		if !ok {
-			return ri, fmt.Errorf("value %v is not a interface array", value)
-		}
-
-		for _, intf := range arrIntf {
-			s, ok := intf.(string)
-			if !ok {
-				return ri, fmt.Errorf("intf %v is not a string", intf)
-			}
-			items = append(items, newItem(s))
-		}
-
-		break
+func (sel *Selected) appendString(typedColumn string, value reflect.Value) error {
+	str, err := stringFieldValue(typedColumn, value)
+	if err != nil {
+		return err
 	}
 
-	return RepeatedItem{Root: root, Items: items}, nil
+	sel.appendName(typedColumn)
+	sel.appendValue(str)
+	return nil
+}
+
+func (sel *Selected) appendName(s string) {
+	if sel.Name == "" {
+		sel.Name = s
+	} else {
+		sel.Name = sel.Name + "." + s
+	}
+}
+
+func (sel *Selected) appendValue(v string) {
+	sel.Value = append(sel.Value, v)
+}
+
+func stringFieldValue(fieldName string, value reflect.Value) (s string, err error) {
+	v := value.FieldByName(fieldName)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	switch v.Kind() {
+	case reflect.String:
+		s = v.String()
+		log.Printf("----- string: %s", s)
+	case reflect.Int64:
+		s = strconv.FormatInt(v.Int(), 10)
+		log.Printf("----- int64: %s", s)
+	case reflect.Invalid:
+		log.Printf("SKIP INVALID. field: %s, casted: %+v", fieldName, v)
+	default:
+		err = fmt.Errorf("field: %s does not have string value. %s", fieldName, v.String())
+	}
+
+	return s, err
 }
 
 func Hoge() {
-	unmarshals, err := Unmarshal([]byte(hogeYAML))
+	//cd, err := NewColDefFromYAMLFile(filepath.Join("$HOME", ".lsec2"))
+	ds, err := NewSelectorFromYAMLFile(filepath.Join(".", "tmp"))
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		log.Printf("@@ err: %v", err)
 	}
-	fmt.Printf("--- unmarshals: \n%#v\n\n", unmarshals)
 
-	cd, err := NewColDef(unmarshals)
-	if err != nil {
-		log.Fatalf("error: %v", err)
+	log.Printf("@@ ds: %+v", ds)
+
+	instance := &ec2.Instance{}
+	instance.InstanceId = aws.String("instance-id")
+	instance.PublicIpAddress = aws.String("1.2.3.4")
+
+	instance.State = &ec2.InstanceState{
+		Code: aws.Int64(1234),
+		Name: aws.String("running"),
 	}
-	fmt.Printf("--- coldef: \n%#v\n\n", cd)
-
-	d, err := yaml.Marshal(&unmarshals)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-	fmt.Printf("--- unmarshals dump:\n%s\n\n", string(d))
-
-	for _, col := range cd.Columns {
-		var ok bool
-
-		fmt.Printf(" col: %#v\n", col)
-
-		switch t := col.(type) {
-		case Item:
-			if t.EmptyReceivers() {
-				fmt.Println("EmptyReceivers")
-				_, ok = reflect.TypeOf(ec2.Instance{}).FieldByName(t.Name)
-			} else {
-				fmt.Println("Non EmptyReceivers")
-				var st reflect.StructField
-
-				for idx, r := range t.Receivers {
-					if idx == 0 {
-						fmt.Printf(" --- from EC2, st %#v, receiver: %#v, idx: %d\n", st, r, idx)
-						st, ok = reflect.TypeOf(ec2.Instance{}).FieldByName(r)
-					} else {
-						fmt.Printf(" --- from st, st %#v, receiver: %#v, idx: %d\n", st, r, idx)
-						st, ok = st.Type.FieldByName(r)
-					}
-
-					fmt.Printf("  FieldByName ok: %v, st: %#v\n", ok, st)
-					fmt.Printf("  ! st.Type %#v\n", st.Type)
-					if !ok {
-						break
-					}
-				}
-
-				if ok {
-					fmt.Printf(" Type: %#v\n", st.Type)
-					st, ok = st.Type.FieldByName(t.Name)
-					fmt.Printf(" final st: %#v\n", st)
-				}
-			}
-
-			if !ok {
-				log.Fatalf("error: %v", fmt.Errorf("does not exist in field"))
-			}
-
-		case RepeatedItem:
-			fmt.Printf(" I am RepeatedItem TODO\n")
-		default:
-			fmt.Printf(" t: %v\n", t)
+	/*
+		instance.CapacityReservationId = aws.String("capacity-reservation-id")
+		instance.NetworkInterfaces = []*ec2.InstanceNetworkInterface{
+			{
+				Association: &ec2.InstanceNetworkInterfaceAssociation{PublicDnsName: aws.String("xyz-dns")},
+				Groups: []*ec2.GroupIdentifier{
+					{GroupId: aws.String("xxxgroup111")},
+					{GroupId: aws.String("xxxgroup222")},
+				},
+			},
 		}
+		instance.Tags = []*ec2.Tag{
+			{Key: aws.String("tag1"), Value: aws.String("value1")},
+			{Key: aws.String("tag2"), Value: aws.String("value2")},
+		}
+	*/
+
+	err = ds.SelectInstanceInfo(instance)
+	if err != nil {
+		log.Fatalf("!!!!! Select error: %v", err)
 	}
-	// reflect.TypeOf(ec2.Instance{}).FieldByName("xxx")
-	// FieldByName(name string) (StructField, bool)
 }

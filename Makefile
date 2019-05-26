@@ -19,6 +19,10 @@ GOVERSION = $(shell go version | awk '{print $$3;}')
 version:
 	@echo $(shell ./scripts/_version.sh)
 
+.PHONY: run
+run:
+	@go run cmd/lsec2/main.go
+
 bin/$(NAME): $(SRCS)
 	@./scripts/build.sh bin/$(NAME)
 
