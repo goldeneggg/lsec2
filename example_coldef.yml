@@ -1,0 +1,42 @@
+# Type support
+# - string
+# - integer
+# - double
+# - float
+# - boolean
+# - timestamp
+# - list
+# - structure
+# - blob
+
+Columns:
+  # int64
+  - AmiLaunchIndex
+  # string
+  - Architecture
+  # string in struct
+  - CapacityReservationSpecification: CapacityReservationPreference
+  # string nested struct
+  - CapacityReservationSpecification:
+      CapacityReservationPreference: CapacityReservationId
+  # struct array defined by "ARRAY" keyword
+  - ARRAY:
+    - BlockDeviceMappings: DeviceName
+    - BlockDeviceMappings:
+        Ebs: AttachTime
+    - BlockDeviceMappings:
+        Ebs: DeleteOnTermination
+    - BlockDeviceMappings:
+        Ebs: Status
+  - InstanceId
+  - PublicIpAddress
+  - State: Name
+  - ARRAY:
+    - NetworkInterfaces:
+        Association: PublicDnsName
+    - NetworkInterfaces:
+      - ARRAY:
+        - Groups: GroupId
+  - ARRAY:
+    - Tags: Key
+    - Tags: Value

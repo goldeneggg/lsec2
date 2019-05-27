@@ -16,6 +16,8 @@ import (
 const (
 	ColDefFileName = "coldef"
 
+	ArraySign = "ARRAY"
+
 	DefaultYAML = `
 - InstanceId
 - PrivateIpAddress
@@ -67,6 +69,7 @@ func NewSelectorFromYAMLFile(dir string) (Selector, error) {
 
 func (ds *DefaultSelector) SelectInstanceInfo(instance *ec2.Instance) error {
 	instValue := reflect.ValueOf(instance)
+	log.Printf("--- instValue: %+v", instValue)
 
 	for _, column := range ds.colDef.Columns {
 		log.Printf("--- column: %+v", column)
