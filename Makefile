@@ -1,5 +1,5 @@
 NAME := lsec2
-ROF_DIR := ./.profile
+PROF_DIR := ./.profile
 PKG_AWS_SDK_GO := github.com/aws/aws-sdk-go
 PKG_URFAVE_CLI := github.com/urfave/cli
 MOD_QUERY_AWS_SDK_GO := <v1.20

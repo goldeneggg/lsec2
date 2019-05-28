@@ -1,0 +1,14 @@
+Columns:
+  - InstanceId
+  - PrivateIpAddress
+  - PublicIpAddress
+  - InstanceType
+  - State: Name         # example of struct type
+  - State: Code         # example of struct type
+  - NetworkInterfaces:  # example of array(children has struct type) type
+    - Association: PublicDnsName
+    - Groups:
+      - GroupId
+  - Tags:               # example of array type
+    - Key
+    - Value
