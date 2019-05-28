@@ -41,6 +41,10 @@ install:
 test:
 	@go test -race -cover -v $(PACKAGES)
 
+.PHONY: bench
+bench:
+	@go test -bench . $(PACKAGES)
+
 .PHONY: prof
 prof:
 	@[ ! -d $(PROF_DIR) ] && mkdir $(PROF_DIR); go test -bench . -benchmem -cover -coverprofile $(PROF_DIR)/cover.out $(PACKAGES)
