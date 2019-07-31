@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 source scripts/_prepare.sh
 
