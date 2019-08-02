@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
@@ -67,16 +67,22 @@ func (client *Client) EC2Instances() ([]*ec2.Instance, error) {
 }
 
 func defaultEC2Client(region string, profile string) ec2iface.EC2API {
-	config := aws.NewConfig()
+	config := aws.NewConfig().WithCredentialsChainVerboseErrors(true)
 	if region != "" {
 		config = config.WithRegion(region)
 	}
-	if profile != "" {
-		config = config.WithCredentials(credentials.NewSharedCredentials("", profile))
-	}
-	sess := session.Must(session.NewSession(config))
 
-	return ec2.New(sess)
+	sessOpts := session.Options{
+		Config:                  *config,
+		AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
+		// Load ~/.aws/config regardless of whether AWS_SDK_LOAD_CONFIG env is set
+		SharedConfigState: session.SharedConfigEnable,
+	}
+	if profile != "" {
+		sessOpts.Profile = profile
+	}
+
+	return ec2.New(session.Must(session.NewSessionWithOptions(sessOpts)))
 }
 
 func (client *Client) buildFilter() *ec2.DescribeInstancesInput {
