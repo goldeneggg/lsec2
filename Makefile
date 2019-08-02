@@ -2,7 +2,7 @@ NAME := lsec2
 PROF_DIR := ./.profile
 PKG_AWS_SDK_GO := github.com/aws/aws-sdk-go
 PKG_URFAVE_CLI := github.com/urfave/cli
-MOD_QUERY_AWS_SDK_GO := <v1.20
+MOD_QUERY_AWS_SDK_GO := <v1.22
 MOD_QUERY_URFAVE_CLI := <v1.21
 
 # Note: NOT use lazy initializer because make is unstable.
