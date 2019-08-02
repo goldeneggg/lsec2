@@ -97,6 +97,10 @@ $ lsec2  # use "default" profile
 $ lsec2 --profile test  # use "test" profile
 ```
 
+### Use profile with AssumeRole
+See https://github.com/goldeneggg/lsec2/pull/21
+
+
 ## Usage
 
 ```sh
@@ -125,11 +129,9 @@ You can use 3 patterns
 $ lsec2 --region ap-northeast-1
 ```
 
-* set `AWS_SDK_LOAD_CONFIG` environment, and write `region` key in `~/.aws/config` file
+* write `region` key in `~/.aws/config` file
 
 ```sh
-$ export AWS_SDK_LOAD_CONFIG=true
-
 $ vi ~/.aws/config
 ```
 ```ini
