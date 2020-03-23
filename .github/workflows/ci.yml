@@ -63,9 +63,6 @@ jobs:
       id: codecov
       uses: codecov/codecov-action@v1
       with:
-        # Note: file does not support environment value, context, and expression
-        #file: ${{ .env.GITHUB_WORKSPACE }}/coverage.txt
-        #file: ${GITHUB_WORKSPACE}/coverage.txt
         file: ./coverage.txt
         flags: unittests
         name: codecov
