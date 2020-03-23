@@ -90,6 +90,10 @@ jobs:
       id: checkout
       uses: actions/checkout@v2
 
+    - name: Set GOVERSION env
+      id: set-goversion-env
+      run: echo "::set-env name=GOVERSION::$(go version)"
+
     - name: Validate .goreleaser.yml with goreleaser-action
       uses: goreleaser/goreleaser-action@v1
       with:
