@@ -7,7 +7,7 @@ require (
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.6 // indirect
 	github.com/urfave/cli v1.22.3
-	golang.org/x/sys v0.0.0-20190312061237-fead79001313 // indirect
+	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 )
 
 go 1.13

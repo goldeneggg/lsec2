@@ -98,6 +98,9 @@ mod-dl:
 mod-tidy:
 	@GO111MODULE=on go mod tidy
 
+mod-golint-install: mod-tidy
+	@GO111MODULE=on go install golang.org/x/lint/golint
+
 ci-test:
 	@./scripts/ci-test.sh
 
