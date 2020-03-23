@@ -31,7 +31,9 @@ builds:
       goarch: 386
     - goos: windows
       goarch: 386
-archive:
+
+archives:
+-
   format_overrides:
     - goos: windows
       format: zip
@@ -49,7 +51,8 @@ changelog:
     - '^docs:'
     - '^test:'
 
-brew:
+brews:
+-
   github:
     owner: goldeneggg
     name: homebrew-tap
@@ -64,7 +67,8 @@ brew:
 
 # Note:
 # "brew install rpm" is required on OS X
-nfpm:
+nfpms:
+-
   license: MIT
   maintainer: Fuminori Sakamoto
   homepage: https://github.com/goldeneggg/lsec2
