@@ -17,7 +17,12 @@ builds:
     - -installsuffix
     - netgo
   ldflags:
-    - -w -s -extldflags "-static" -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildDate={{.Date}} -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildCommit={{.ShortCommit}} -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.GoVersion={{.Env.GOVERSION}}
+    - -w
+    - -s
+    - -extldflags "-static"
+    - -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildDate={{.Date}}
+    - -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildCommit={{.ShortCommit}}
+    - -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.GoVersion={{.Env.GOVERSION}}
   goos:
     - linux
     - freebsd
