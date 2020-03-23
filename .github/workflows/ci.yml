@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '**/.gitignore'
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '**/.gitignore'
+
+jobs:
+  test:
+    name: Test with Go version ${{ matrix.go }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest' ]
+        go: [ '1.11', '1.12', '1.13' ]
+
+    steps:
+    - name: Set up Go ${{ matrix.go }}
+      id: setup-go
+      uses: actions/setup-go@v2-beta
+      with:
+        go-version: ${{ matrix.go }}
+
+    - name: Check out repositories
+      id: checkout
+      uses: actions/checkout@v2
+
+    - name: Cache dependencies and tools
+      id: cache
+      uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependency go modules
+      id: mod-dl
+      run: make mod-dl
+
+    - name: Install golint on module-aware mode
+      id: mod-golint-install
+      run: GOBIN=${GITHUB_WORKSPACE}/bin make mod-golint-install
+
+    - name: Add GITHUB_WORKSPACE/bin into PATH
+      id: add-gobin-path
+      run: echo "::add-path::${GITHUB_WORKSPACE}/bin"
+
+    - name: Run tests and linters
+      id: ci
+      run: make ci
+
+  validate-goreleaser:
+    name: Validate .goreleaser.yml
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest' ]
+        go: [ '1.13' ]
+
+    steps:
+    - name: Set up Go ${{ matrix.go }}
+      id: setup-go
+      uses: actions/setup-go@v2-beta
+      with:
+        go-version: ${{ matrix.go }}
+
+    - name: Check out repositories
+      id: checkout
+      uses: actions/checkout@v2
+
+    - name: Validate .goreleaser.yml with goreleaser-action
+      uses: goreleaser/goreleaser-action@v1
+      with:
+        version: latest
+        args: release --snapshot --skip-publish --rm-dist --debug
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
