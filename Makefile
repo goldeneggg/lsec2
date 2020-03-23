@@ -111,9 +111,6 @@ vendor:
 vendor-build:
 	@./scripts/build.sh bin/$(NAME) "-mod vendor"
 
-lint-travis:
-	@travis lint --org --debug .travis.yml
-
 # Note: require "brew install rpmbuild" on OS X
 test-goreleaser:
 	@GOVERSION=$(GOVERSION) goreleaser release --snapshot --skip-publish --rm-dist
