@@ -2,7 +2,7 @@ NAME := lsec2
 PROF_DIR := ./.profile
 PKG_AWS_SDK_GO := github.com/aws/aws-sdk-go
 PKG_URFAVE_CLI := github.com/urfave/cli
-MOD_QUERY_AWS_SDK_GO := <v1.26
+MOD_QUERY_AWS_SDK_GO := <v1.30
 MOD_QUERY_URFAVE_CLI := <v1.23
 
 # Note: NOT use lazy initializer because make is unstable.
@@ -98,6 +98,9 @@ mod-dl:
 mod-tidy:
 	@GO111MODULE=on go mod tidy
 
+mod-golint-install: mod-tidy
+	@GO111MODULE=on go install golang.org/x/lint/golint
+
 ci-test:
 	@./scripts/ci-test.sh
 
@@ -110,9 +113,6 @@ vendor:
 
 vendor-build:
 	@./scripts/build.sh bin/$(NAME) "-mod vendor"
-
-lint-travis:
-	@travis lint --org --debug .travis.yml
 
 # Note: require "brew install rpmbuild" on OS X
 test-goreleaser:

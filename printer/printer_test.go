@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"text/tabwriter"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -112,12 +113,8 @@ func TestNewPrinter(t *testing.T) {
 			t.Errorf("expected: %#v, but actual: %#v", c.expected.WithColor, pr.WithColor)
 		}
 		if c.w == nil {
-			if file, ok := pr.Writer.(*os.File); ok {
-				if file.Name() != "/dev/stdout" {
-					t.Errorf("expected: /dev/stdout, but actual: %#v", file.Name())
-				}
-			} else {
-				t.Errorf("expected: *os.File, but actual: %#v", pr.Writer)
+			if _, ok := pr.Writer.(*tabwriter.Writer); !ok {
+				t.Errorf("expected: *tabwriter.Writer, but actual: %#v", pr.Writer)
 			}
 		} else {
 			if pr.Writer != c.expected.Writer {

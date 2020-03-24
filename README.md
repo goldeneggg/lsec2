@@ -1,6 +1,6 @@
 # lsec2
 
-[![Build Status](https://travis-ci.org/goldeneggg/lsec2.svg?branch=master)](https://travis-ci.org/goldeneggg/lsec2)
+[![Workflow Status](https://github.com/goldeneggg/lsec2/workflows/CI/badge.svg)](https://github.com/goldeneggg/lsec2/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/goldeneggg/lsec2)](https://goreportcard.com/report/github.com/goldeneggg/lsec2)
 [![GolangCI](https://golangci.com/badges/github.com/goldeneggg/gat.svg)](https://golangci.com/r/github.com/goldeneggg/lsec2)
 [![Codecov](https://codecov.io/github/goldeneggg/lsec2/coverage.svg?branch=master)](https://codecov.io/github/goldeneggg/lsec2?branch=master)

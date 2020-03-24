@@ -1,0 +1,40 @@
+name: release
+
+on:
+  push:
+    branches:
+      - "!*"
+    tags:
+    - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  goreleaser:
+    name: GoReleaser with Go version ${{ matrix.go }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest' ]
+        go: [ '1.13' ]
+
+    steps:
+    - name: Set up Go ${{ matrix.go }}
+      id: setup-go
+      uses: actions/setup-go@v2-beta
+      with:
+        go-version: ${{ matrix.go }}
+
+    - name: Check out code into the Go module directory
+      id: checkout
+      uses: actions/checkout@v2
+
+    - name: Set GOVERSION env
+      id: set-goversion-env
+      run: echo "::set-env name=GOVERSION::$(go version)"
+
+    - name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@v1
+      with:
+        version: latest
+        args: release --rm-dist
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}

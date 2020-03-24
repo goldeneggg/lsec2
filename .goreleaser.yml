@@ -17,7 +17,12 @@ builds:
     - -installsuffix
     - netgo
   ldflags:
-    - -w -s -extldflags "-static" -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildDate={{.Date}} -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildCommit={{.ShortCommit}} -X github.com/goldeneggg/lsec2/cmd/lsec2/cli.GoVersion={{.Env.GOVERSION}}
+    - -w
+    - -s
+    - -extldflags "-static"
+    - -X "github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildDate={{.Date}}"
+    - -X "github.com/goldeneggg/lsec2/cmd/lsec2/cli.BuildCommit={{.ShortCommit}}"
+    - -X "github.com/goldeneggg/lsec2/cmd/lsec2/cli.GoVersion={{.Env.GOVERSION}}"
   goos:
     - linux
     - freebsd
@@ -31,7 +36,9 @@ builds:
       goarch: 386
     - goos: windows
       goarch: 386
-archive:
+
+archives:
+-
   format_overrides:
     - goos: windows
       format: zip
@@ -49,7 +56,8 @@ changelog:
     - '^docs:'
     - '^test:'
 
-brew:
+brews:
+-
   github:
     owner: goldeneggg
     name: homebrew-tap
@@ -64,7 +72,8 @@ brew:
 
 # Note:
 # "brew install rpm" is required on OS X
-nfpm:
+nfpms:
+-
   license: MIT
   maintainer: Fuminori Sakamoto
   homepage: https://github.com/goldeneggg/lsec2

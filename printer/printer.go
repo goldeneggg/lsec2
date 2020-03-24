@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/aws/aws-sdk-go/service/ec2"
 
@@ -13,14 +14,18 @@ import (
 
 const (
 	defaultDelimiter = "\t"
+
+	minWidth = 0
+	tabWidth = 4
+	padding  = 4
+	padChar  = ' '
+	flags    = 0
 )
 
-/*
 type flushableWriter interface {
 	io.Writer
 	Flush() error
 }
-*/
 
 // Printer is options definition of print
 type Printer struct {
@@ -53,8 +58,22 @@ func NewPrinter(delim string, header, onlyPvtIP, withColor bool, w interface{}) 
 }
 
 func defaultWriter(delim string) io.Writer {
-	// pretty print customize is here
-	return os.Stdout
+	org := os.Stdout
+
+	if delim == defaultDelimiter {
+		// pretty print customize is here
+		tw := tabwriter.NewWriter(
+			org,
+			minWidth,
+			tabWidth,
+			padding,
+			padChar,
+			flags,
+		)
+		return tw
+	}
+
+	return org
 }
 
 // PrintAll prints information all of aws ec2 instances
@@ -82,8 +101,7 @@ func (pr *Printer) PrintAll(client *awsec2.Client) error {
 }
 
 func (pr *Printer) flushIfFlushable() {
-	//if fw, ok := pr.Writer.(flushableWriter); ok {
-	if fw, ok := pr.Writer.(interface{ Flush() error }); ok {
+	if fw, ok := pr.Writer.(flushableWriter); ok {
 		fw.Flush()
 	}
 }
